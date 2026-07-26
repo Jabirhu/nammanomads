@@ -253,20 +253,40 @@ app.post('/login', async (req, res) => {
     }
 
     if (is_admin_form === 'true') {
-        if (mobile === '9353863794' && password === 'Nico@mads987') {
-            req.session.regenerate((err) => {
-                if (err) return res.status(500).send("Session error");
-                req.session.user = { 
-                    id: 0,
-                    mobile: '9353863794', 
-                    name: 'Admin', 
-                    role: 'admin',
-                    isAdmin: true 
-                };
-                return res.redirect('/admin/dashboard');
-            });
-        } else {
-            return res.send("<script>alert('Invalid Admin Credentials!'); window.location.href='/';</script>");
+        try {
+            const userResult = await pool.query(`SELECT * FROM users WHERE mobile = $1`, [mobile]);
+            const user = userResult.rows[0];
+
+            if (!user) {
+                await bcrypt.compare(password, '$2a$10$invalidhashdummyvaluetoensuretimingsafety123456');
+                return res.send("<script>alert('Invalid Admin Credentials!'); window.location.href='/';</script>");
+            }
+
+            let match = false;
+            if (user.password.startsWith('$2')) {
+                match = await bcrypt.compare(password, user.password);
+            } else {
+                match = (password === user.password);
+            }
+
+            if (match && (user.role === 'admin' || mobile === '9353863794')) {
+                req.session.regenerate((err) => {
+                    if (err) return res.status(500).send("Session error");
+                    req.session.user = { 
+                        id: user.id,
+                        mobile: user.mobile, 
+                        name: user.name, 
+                        role: user.role,
+                        isAdmin: true 
+                    };
+                    return res.redirect('/admin/dashboard');
+                });
+            } else {
+                return res.send("<script>alert('Invalid Admin Credentials!'); window.location.href='/';</script>");
+            }
+        } catch (error) {
+            console.error("Admin login error:", error);
+            return res.send("<script>alert('An error occurred during admin login.'); window.location.href='/';</script>");
         }
         return;
     }
