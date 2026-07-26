@@ -1,0 +1,55 @@
+import { DeviceContext, PaymentFlowType, PgV2InstrumentType } from '../../models';
+import { EventState } from '../models/enums/EventState';
+import { FlowType } from '../models/enums/FlowType';
+import { EventData } from '../models/EventData';
+export declare class EventDataBuilder {
+    flowType: FlowType;
+    paymentFlow?: PaymentFlowType;
+    sdkType: string;
+    sdkVersion: string;
+    apiPath?: string;
+    amount?: number;
+    targetApp?: string;
+    deviceContext?: DeviceContext;
+    expireAfter?: number;
+    merchantRefundId?: string;
+    originalMerchantOrderId?: string;
+    transactionId?: string;
+    eventState: EventState;
+    paymentInstrument?: PgV2InstrumentType;
+    cachedTokenIssuedAt?: number;
+    cachedTokenExpiresAt?: number;
+    tokenFetchAttemptTimestamp?: number;
+    exceptionClass?: string;
+    exceptionMessage?: string;
+    exceptionCode?: string;
+    exceptionHttpStatusCode?: number;
+    exceptionData?: {
+        [key: string]: object;
+    };
+    setFlowType: (flowType: FlowType) => this;
+    setPaymentFlow: (paymentFlow?: PaymentFlowType) => this;
+    setSdkType: (sdkType: string) => this;
+    setSdkVersion: (sdkVersion: string) => this;
+    setApiPath: (apiPath: string) => this;
+    setAmount: (amount?: number) => this;
+    setTargetApp: (targetApp?: string) => this;
+    setDeviceContext: (deviceContext?: DeviceContext) => this;
+    setExpireAfter: (expireAfter?: number) => this;
+    setMerchantRefundId: (merchantRefundId: string) => this;
+    setOriginalMerchantOrderId: (originalMerchantOrderId: string) => this;
+    setTransactionId: (transactionId: string) => this;
+    setEventState: (eventState: EventState) => this;
+    setPaymentInstrument: (paymentInstrument: PgV2InstrumentType) => this;
+    setCachedTokenIssuesAt: (cachedTokenIssuedAt: number) => this;
+    setCachedTokenExpiresAt: (cachedTokenExpiresAt: number) => this;
+    setTokenFetchAttemptTimestamp: (tokenFetchAttemptTimestamp: number) => this;
+    setExceptionClass: (exceptionClass: string) => this;
+    setExceptionMessage: (exceptionMessage: string) => this;
+    setExceptionCode: (exceptionCode: string) => this;
+    setExceptionHttpStatusCode: (exceptionHttpStatusCode: number) => this;
+    setExceptionData: (exceptionData: {
+        [key: string]: object;
+    }) => this;
+    build: () => EventData;
+}

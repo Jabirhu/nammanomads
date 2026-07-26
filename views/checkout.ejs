@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/png" href="/images/browser_icon.png">
+    <title>Complete Booking - <%= (typeof game !== 'undefined' && game && game.title) ? game.title : 'Namma Nomads' %></title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+</head>
+<body class="bg-light">
+    <div class="container mt-4 mb-5" style="max-width: 550px;">
+        <div class="card shadow p-4 rounded-4 text-center">
+            <!-- Timer Badge -->
+            <div class="alert alert-warning py-2 mb-3 fw-bold" id="timer-box">
+                ⏳ Complete payment in: <span id="countdown">04:00</span>
+            </div>
+
+            <% if (typeof game !== 'undefined' && game) { %>
+                <h3 class="fw-bold mb-2"><%= game.title || 'Match Booking' %></h3>
+                <p class="mb-1 text-muted">📅 Date: <%= game.date || 'TBD' %></p>
+                <% if (game.time) { %>
+                    <p class="mb-1 text-muted">⏰ Time: <%= game.time %></p>
+                <% } %>
+                <% if (game.location) { %>
+                    <p class="mb-1 text-muted">📍 Location: <%= game.location %></p>
+                <% } %>
+                <% if (game.price) { %>
+                    <p class="mb-3 fw-bold text-success fs-5">Amount to Pay: ₹<%= game.price %></p>
+                <% } %>
+            <% } else { %>
+                <h3 class="fw-bold mb-3">Match Booking</h3>
+                <p class="text-muted">Details unavailable.</p>
+            <% } %>
+
+            <hr>
+
+            <!-- DESKTOP QR CODE CONTAINER (Hidden until generated successfully) -->
+            <div id="desktop-qr-container" class="mb-4" style="display: none;">
+                <div class="alert alert-primary py-2 small mb-3">
+                    <i class="fas fa-desktop me-1"></i> Scan the QR code below using PhonePe, GPay, or Paytm on your phone to pay.
+                </div>
+                <div class="bg-white p-3 border rounded-3 d-inline-block shadow-sm">
+                    <div id="qrcode" class="d-flex justify-content-center"></div>
+                </div>
+                <p class="text-muted small mt-2 mb-0">Waiting for payment confirmation...</p>
+                <div class="spinner-border spinner-border-sm text-primary mt-2" role="status"></div>
+            </div>
+
+            <!-- SECURE PHONEPE PAYMENT GATEWAY BUTTON (Visible on Mobile) -->
+            <div id="payment-section" class="mb-4">
+                <div class="alert alert-info py-2 small mb-3">
+                    <i class="fas fa-shield-alt me-1"></i> Secure payment powered by PhonePe Gateway. No fake confirmations allowed.
+                </div>
+                
+                <button id="phonepe-pay-btn" class="btn text-white fw-bold py-3 w-100 d-flex align-items-center justify-content-center shadow-sm" style="background-color: #5f259f; font-size: 1.1rem;">
+                    <i class="fas fa-bolt me-2"></i> Pay ₹<%= (typeof game !== 'undefined' && game && game.price) ? game.price : '300' %> via PhonePe
+                </button>
+            </div>
+
+            <div class="text-center mt-3">
+                <a href="/" class="text-decoration-none small text-muted">← Cancel / Back to Home</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", async function() {
+            const gameId = "<%= (typeof game !== 'undefined' && game) ? game.id : '' %>";
+            const payBtn = document.getElementById("phonepe-pay-btn");
+            const desktopQrContainer = document.getElementById("desktop-qr-container");
+            const paymentSection = document.getElementById("payment-section");
+
+            // Detect if device is Desktop/Laptop
+            const isDesktop = !/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+            let pollInterval = null;
+
+            function startPaymentPolling(txId) {
+                pollInterval = setInterval(async () => {
+                    try {
+                        const res = await fetch(`/api/phonepe/check-status?id=${txId}`);
+                        const data = await res.json();
+                        if (data.status === 'SUCCESS') {
+                            clearInterval(pollInterval);
+                            window.location.href = data.redirectUrl;
+                        } else if (data.status === 'FAILED') {
+                            clearInterval(pollInterval);
+                            alert('Payment failed or cancelled.');
+                            window.location.reload();
+                        }
+                    } catch (e) {
+                        console.error('Polling error:', e);
+                    }
+                }, 3000);
+            }
+
+            // If Desktop, automatically generate order and display QR code box
+            if (isDesktop) {
+                paymentSection.style.display = 'none';
+                
+                try {
+                    const response = await fetch('/api/phonepe/create-order', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ game_id: gameId })
+                    });
+                    const data = await response.json();
+
+                    if (data.success && data.redirectUrl) {
+                        desktopQrContainer.style.display = 'block';
+                        document.getElementById("qrcode").innerHTML = "";
+                        new QRCode(document.getElementById("qrcode"), {
+                            text: data.redirectUrl,
+                            width: 200,
+                            height: 200
+                        });
+                        startPaymentPolling(data.transactionId);
+                    } else {
+                        desktopQrContainer.style.display = 'none';
+                        paymentSection.style.display = 'block';
+                    }
+                } catch (err) {
+                    console.error('QR Init error:', err);
+                    desktopQrContainer.style.display = 'none';
+                    paymentSection.style.display = 'block';
+                }
+            }
+
+            // Mobile click handler
+            payBtn.onclick = async function () {
+                payBtn.disabled = true;
+                payBtn.innerHTML = `<span class="spinner-border spinner-border-sm me-2"></span> Initializing Secure Gateway...`;
+
+                try {
+                    const response = await fetch('/api/phonepe/create-order', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ game_id: gameId })
+                    });
+                    const data = await response.json();
+
+                    if (data.success && data.redirectUrl) {
+                        window.location.href = data.redirectUrl;
+                    } else {
+                        alert("Failed to initialize payment gateway session. Please try again.");
+                        payBtn.disabled = false;
+                        payBtn.innerHTML = `<i class="fas fa-bolt me-2"></i> Pay ₹<%= (typeof game !== 'undefined' && game && game.price) ? game.price : '300' %> via PhonePe`;
+                    }
+                } catch (err) {
+                    console.error('Payment initialization error:', err);
+                    alert('An error occurred connecting to the server.');
+                    payBtn.disabled = false;
+                    payBtn.innerHTML = `<i class="fas fa-bolt me-2"></i> Pay ₹<%= (typeof game !== 'undefined' && game && game.price) ? game.price : '300' %> via PhonePe`;
+                }
+            };
+
+            // Countdown Timer (4 minutes)
+            let timeLeft = 240;
+            const countdownEl = document.getElementById("countdown");
+            const timer = setInterval(() => {
+                let minutes = Math.floor(timeLeft / 60);
+                let seconds = timeLeft % 60;
+                if (countdownEl) {
+                    countdownEl.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+                }
+                if (timeLeft <= 0) {
+                    clearInterval(timer);
+                    if (pollInterval) clearInterval(pollInterval);
+                    window.location.href = "/";
+                }
+                timeLeft--;
+            }, 1000);
+        });
+    </script>
+</body>
+</html>

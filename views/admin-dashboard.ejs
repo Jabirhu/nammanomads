@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - Namma Nomads</title>
+     <!-- Browser tab icon -->
+    <link rel="icon" type="image/png" href="/images/browser_icon.png">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .admin-nav-card {
+            border: 1px solid rgba(0,0,0,0.08);
+            border-radius: 1rem;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            background: #ffffff;
+            cursor: pointer;
+        }
+        .glass-nav {
+            background: rgba(255, 255, 255, 0.15) !important; /* Adjust opacity as needed */
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px); /* Safari support */
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.1);   
+        }
+        .admin-nav-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 .5rem 1rem rgba(0,0,0,.08);
+        }
+        .dynamic-content-section {
+            display: none;
+            opacity: 0;
+            transition: opacity 0.3s ease-in-out;
+        }
+        .dynamic-content-section.active {
+            display: block;
+            opacity: 1;
+        }
+    </style>
+</head>
+<body class="bg-light">
+
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm border-bottom fixed-top">
+        <div class="container">
+            <a class="navbar-brand d-flex align-items-center" href="/">
+                <img src="/images/logo.png" alt="Logo" width="40" height="40" class="rounded-circle me-2">
+                <span>Namma Nomads Admin</span>
+            </a>
+            <div class="d-flex align-items-center">
+                <a href="/" class="btn btn-outline-dark btn-sm me-2" target="_blank">View Site</a>
+                <a class="btn btn-outline-danger btn-sm" href="/logout">Logout</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container my-5 pt-4">
+        <!-- Interactive Card Navigation Section (3 Balanced Cards) -->
+        <div class="row g-4 mb-5">
+            <!-- 1. Create Event Card -->
+            <div class="col-md-4">
+                <div class="card admin-nav-card p-4 h-100 d-flex flex-column justify-content-between" id="create-card-trigger" onclick="switchSection('create-section', this)">
+                    <div>
+                        <div class="d-flex align-items-center mb-3">
+                            <div class="bg-primary bg-opacity-10 p-3 rounded-3 text-primary me-3">
+                                <i class="fas fa-calendar-plus fa-2x"></i>
+                            </div>
+                            <div>
+                                <h6 class="text-uppercase mb-1 text-muted small fw-bold">Action</h6>
+                                <h4 class="fw-bold mb-0 text-dark">Create Event</h4>
+                            </div>
+                        </div>
+                        <p class="text-muted small mb-4">Add new football matches, configure dates, times, turf locations, and slot pricing.</p>
+                    </div>
+                    <button class="btn btn-primary fw-bold py-2 w-100 pointer-events-none">
+                        <i class="fas fa-plus me-1"></i> Add New Event
+                    </button>
+                </div>
+            </div>
+
+            <!-- 2. Registered Players Card -->
+            <div class="col-md-4">
+                <div class="card admin-nav-card p-4 h-100 d-flex flex-column justify-content-between" id="registrations-card-trigger" onclick="switchSection('registrations-section', this)">
+                    <div>
+                        <div class="d-flex align-items-center mb-3">
+                            <div class="bg-dark bg-opacity-10 p-3 rounded-3 text-dark me-3">
+                                <i class="fas fa-users fa-2x"></i>
+                            </div>
+                            <div>
+                                <h6 class="text-uppercase mb-1 text-muted small fw-bold">Overview</h6>
+                                <h4 class="fw-bold mb-0 text-dark">Registered Players</h4>
+                            </div>
+                        </div>
+                        <p class="text-muted small mb-4">Inspect match-wise attendee lists, check booking statuses, and manage participants.</p>
+                    </div>
+                    <button class="btn btn-dark fw-bold py-2 w-100 pointer-events-none">
+                        <i class="fas fa-list me-1"></i> View Registrations
+                    </button>
+                </div>
+            </div>
+
+            <!-- 3. Add & Manage Photos Card -->
+            <div class="col-md-4">
+                <div class="card admin-nav-card p-4 h-100 d-flex flex-column justify-content-between" id="photo-card-trigger" onclick="switchSection('photos-section', this)">
+                    <div>
+                        <div class="d-flex align-items-center mb-3">
+                            <div class="bg-success bg-opacity-10 p-3 rounded-3 text-success me-3">
+                                <i class="fas fa-images fa-2x"></i>
+                            </div>
+                            <div>
+                                <h6 class="text-uppercase mb-1 text-muted small fw-bold">Media</h6>
+                                <h4 class="fw-bold mb-0 text-dark">Manage Photos</h4>
+                            </div>
+                        </div>
+                        <p class="text-muted small mb-4">Upload match highlights, team photos, and gallery memories or select photos to remove.</p>
+                    </div>
+                    <button class="btn btn-success fw-bold py-2 w-100 pointer-events-none">
+                        <i class="fas fa-camera me-1"></i> Gallery & Removal
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Dynamic Lower Content Container -->
+
+        <!-- 1. Create Event Section -->
+        <div id="create-section" class="dynamic-content-section">
+            <div class="card shadow-sm border-0 rounded-4 p-4 mb-5 bg-white position-relative">
+                <button type="button" class="btn-close position-absolute top-0 end-0 m-4" aria-label="Close" onclick="closeSection('create-section')"></button>
+                <h3 class="fw-bold mb-4 text-dark"><i class="fas fa-plus-circle text-primary me-2"></i>Create New Match Event</h3>
+                    <form action="/admin/create-game" method="POST">
+                        <div class="mb-3">
+                            <label class="form-label">Match Title</label>
+                            <input type="text" class="form-control" name="title" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Location / Turf Name</label>
+                            <input type="text" class="form-control" name="location" required>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label">Date</label>
+                                <input type="date" class="form-control" id="gameDate" name="date" required>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label">Time</label>
+                                <input type="text" class="form-control" name="time" placeholder="e.g. 06:00 PM - 07:30 PM" required>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label">Price per Slot (₹)</label>
+                                <input type="number" class="form-control" name="price" required>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Total Slots Available</label>
+                            <input type="number" class="form-control" name="slots" value="22" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Publish Event</button>
+                    </form>
+            </div>
+        </div>
+
+     <!-- 2. Registered Players / Events Management Section -->
+        <div id="registrations-section" class="dynamic-content-section">
+            <div class="card shadow-sm border-0 rounded-4 p-4 bg-white position-relative">
+                <button type="button" class="btn-close position-absolute top-0 end-0 m-4" aria-label="Close" onclick="closeSection('registrations-section')"></button>
+                <h3 class="fw-bold mb-4 text-dark"><i class="fas fa-list text-secondary me-2"></i>Active & Past Events</h3>
+
+                <!-- Search Input Bar -->
+                <div class="input-group mb-4">
+                    <span class="input-group-text bg-light border-end-0"><i class="fas fa-search text-muted"></i></span>
+                    <input type="text" id="adminGameSearch" class="form-control bg-light border-start-0" placeholder="Search events by title, location, or date..." onkeyup="filterAdminTable()">
+                </div>
+
+                <% if (typeof games === 'undefined' || !games || games.length === 0) { %>
+                    <div class="alert alert-info text-center py-4 mb-0">No events created yet. Use the 'Create Event' section to add one!</div>
+                <% } else { %>
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle" id="adminGamesTable">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Title</th>
+                                    <th>Date & Time</th>
+                                    <th>Location</th>
+                                    <th>Status</th>
+                                    <th>Price</th>
+                                    <th class="text-end">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <% games.forEach(game => { %>
+                                    <tr>
+                                        <td class="fw-bold text-dark"><%= game.title %></td>
+                                        <td class="text-muted"><%= new Date(game.date).toLocaleDateString('en-GB') %><br><small><%= game.time %></small></td>
+                                        <td class="text-muted"><%= game.location %></td>
+                                        <td>
+                                            <% if (game.status === 'active') { %>
+                                                <span class="badge bg-success bg-opacity-10 text-success px-2 py-1">Active</span>
+                                            <% } else { %>
+                                                <span class="badge bg-secondary bg-opacity-10 text-secondary px-2 py-1">Finished</span>
+                                            <% } %>
+                                        </td>
+                                        <td class="fw-bold text-success">₹<%= game.price %></td>
+                                        <td class="text-end">
+                                            <a href="/admin/game/<%= game.id %>" class="btn btn-sm btn-outline-dark fw-bold me-1">
+                                                <i class="fas fa-users me-1"></i> Attendees
+                                            </a>
+                                            <form action="/admin/delete-game/<%= game.id %>" method="POST" class="d-inline" onsubmit="return confirm('Are you sure you want to delete this event?');">
+                                                <button type="submit" class="btn btn-sm btn-outline-danger"><i class="fas fa-trash"></i></button>
+                                            </form>
+                                        </td>
+                                    </tr>
+                                <% }) %>
+                            </tbody>
+                        </table>
+                    </div>
+                <% } %>
+            </div>
+        </div>
+
+
+        <!-- 3. Add & Manage Photos Section -->
+        <div id="photos-section" class="dynamic-content-section">
+            <div class="row g-4">
+                <!-- Upload Card -->
+                <div class="col-md-5">
+                    <div class="card shadow-sm border-0 rounded-4 p-4 h-100 bg-white position-relative">
+                        <button type="button" class="btn-close position-absolute top-0 end-0 m-4" aria-label="Close" onclick="closeSection('photos-section')"></button>
+                        <div class="d-flex align-items-center mb-3">
+                            <div class="bg-success bg-opacity-10 p-3 rounded-3 text-success me-3">
+                                <i class="fas fa-images fa-2x"></i>
+                            </div>
+                            <div>
+                                <h6 class="text-uppercase mb-1 text-muted small fw-bold">Media</h6>
+                                <h4 class="fw-bold mb-0 text-dark">Add Photos</h4>
+                            </div>
+                        </div>
+                        <p class="text-muted small mb-4">Upload match highlights, team photos, and gallery memories for the website.</p>
+                        
+                        <form action="/admin/upload-photo" method="POST" enctype="multipart/form-data">
+                            <input type="hidden" name="redirect_section" value="photos-section">
+                            <div class="mb-3">
+                                <label class="form-label small fw-bold text-muted">Select Image File</label>
+                                <input type="file" name="photo" class="form-control bg-light" accept="image/*" required>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label small fw-bold text-muted">Caption</label>
+                                <input type="text" name="caption" class="form-control bg-light" placeholder="e.g. Sunday Victory Team Photo">
+                            </div>
+                            <button type="submit" class="btn btn-success fw-bold py-2 w-100">
+                                <i class="fas fa-upload me-1"></i> Upload Gallery
+                            </button>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Remove / Manage Existing Photos Card -->
+                <div class="col-md-7">
+                    <div class="card shadow-sm border-0 rounded-4 p-4 h-100 bg-white position-relative">
+                        <button type="button" class="btn-close position-absolute top-0 end-0 m-4" aria-label="Close" onclick="closeSection('photos-section')"></button>
+                        <div class="d-flex align-items-center mb-3">
+                            <div class="bg-danger bg-opacity-10 p-3 rounded-3 text-danger me-3">
+                                <i class="fas fa-trash-alt fa-2x"></i>
+                            </div>
+                            <div>
+                                <h6 class="text-uppercase mb-1 text-muted small fw-bold">Management</h6>
+                                <h4 class="fw-bold mb-0 text-dark">Manage & Remove Photos</h4>
+                            </div>
+                        </div>
+                        <p class="text-muted small mb-3">Select any photo below to instantly remove it from the public gallery.</p>
+
+                        <!-- Scrollable Container of Uploaded Photos -->
+                        <div class="gallery-manage-list overflow-auto pe-2" style="max-height: 320px;">
+                            <% if (typeof gallery !== 'undefined' && gallery && gallery.length > 0) { %>
+                                <div class="row g-3">
+                                    <% gallery.forEach(photo => { %>
+                                        <div class="col-6 col-sm-4">
+                                            <div class="card border-0 shadow-sm position-relative overflow-hidden h-100 bg-light">
+                                                <img src="<%= photo.image_url %>" class="card-img-top" alt="Gallery Photo" style="height: 110px; object-fit: cover;">
+                                                <div class="card-body p-2 d-flex flex-column justify-content-between">
+                                                    <p class="small text-truncate text-muted mb-2" title="<%= photo.caption %>"><%= photo.caption || 'No caption' %></p>
+                                                    <form action="/admin/delete-photo/<%= photo.id %>" method="POST" onsubmit="return confirm('Are you sure you want to delete this photo?');">
+                                                        <input type="hidden" name="redirect_section" value="photos-section">
+                                                        <button type="submit" class="btn btn-outline-danger btn-sm w-100 py-1 fs-7 fw-bold">
+                                                            <i class="fas fa-trash-alt me-1"></i> Remove
+                                                        </button>
+                                                    </form>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    <% }) %>
+                                </div>
+                            <% } else { %>
+                                <div class="text-center py-5 text-muted">
+                                    <i class="fas fa-camera-retro fa-2x mb-2 opacity-50"></i>
+                                    <p class="small mb-0">No gallery photos uploaded yet.</p>
+                                </div>
+                            <% } %>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        function filterAdminTable() {
+            const input = document.getElementById('adminGameSearch');
+            const filter = input.value.toLowerCase();
+            const table = document.getElementById('adminGamesTable');
+            if (!table) return;
+            const trs = table.getElementsByTagName('tr');
+        
+            for (let i = 1; i < trs.length; i++) {
+                let tdTitle = trs[i].getElementsByTagName('td')[0];
+                let tdDate = trs[i].getElementsByTagName('td')[1];
+                let tdLocation = trs[i].getElementsByTagName('td')[2];
+                
+                if (tdTitle || tdDate || tdLocation) {
+                    let textValue = (tdTitle.textContent || tdTitle.innerText) + ' ' + 
+                                    (tdDate.textContent || tdDate.innerText) + ' ' + 
+                                    (tdLocation.textContent || tdLocation.innerText);
+                    
+                    if (textValue.toLowerCase().indexOf(filter) > -1) {
+                        trs[i].style.display = "";
+                    } else {
+                        trs[i].style.display = "none";
+                    }
+                }
+            }
+        }
+        
+        function switchSection(sectionId, cardElement) {
+            // Hide all dynamic sections
+            const sections = document.querySelectorAll('.dynamic-content-section');
+            sections.forEach(sec => sec.classList.remove('active'));
+
+            // Remove active highlight border from cards
+            const cards = document.querySelectorAll('.admin-nav-card');
+            cards.forEach(c => c.style.borderColor = 'rgba(0,0,0,0.08)');
+
+            // Show target section
+            const target = document.getElementById(sectionId);
+            if (target) {
+                target.classList.add('active');
+                if (cardElement) {
+                    cardElement.style.borderColor = '#0d6efd';
+                }
+                target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                localStorage.setItem('activeAdminSection', sectionId);
+            }
+        }
+
+        function closeSection(sectionId) {
+            const target = document.getElementById(sectionId);
+            if (target) {
+                target.classList.remove('active');
+            }
+            const cards = document.querySelectorAll('.admin-nav-card');
+            cards.forEach(c => c.style.borderColor = 'rgba(0,0,0,0.08)');
+            localStorage.removeItem('activeAdminSection');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // Keep section open after page reload (e.g. after uploading or deleting a photo)
+        window.addEventListener('DOMContentLoaded', () => {
+            const savedSection = localStorage.getItem('activeAdminSection');
+            if (savedSection) {
+                const target = document.getElementById(savedSection);
+                if (target) {
+                    target.classList.add('active');
+                    // Find corresponding card trigger if possible
+                    let cardId = '';
+                    if (savedSection === 'create-section') cardId = 'create-card-trigger';
+                    else if (savedSection === 'registrations-section') cardId = 'registrations-card-trigger';
+                    else if (savedSection === 'photos-section') cardId = 'photo-card-trigger';
+
+                    if (cardId) {
+                        const card = document.getElementById(cardId);
+                        if (card) card.style.borderColor = '#0d6efd';
+                    }
+                }
+            }
+
+            // Automatically set the minimum selectable date on the event creation form to today
+            const dateInput = document.getElementById('gameDate');
+            if (dateInput) {
+                const today = new Date().toISOString().split('T')[0];
+                dateInput.setAttribute('min', today);
+            }
+        });
+    </script>
+
+</body>
+</html>

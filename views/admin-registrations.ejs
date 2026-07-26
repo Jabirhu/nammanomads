@@ -1,0 +1,106 @@
+<!-- views/admin-registrations.ejs -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+     <!-- Browser tab icon -->
+    <link rel="icon" type="image/png" href="/images/browser_icon.png">
+    <title>Admin Registrations - Namma Nomads</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+
+    <div class="container py-5">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2 class="fw-bold">Admin Event Rosters & Waitlist</h2>
+            <a href="/admin/dashboard" class="btn btn-outline-secondary btn-sm">Back to Dashboard</a>
+        </div>
+
+        <!-- Event Selection Dropdown / List -->
+        <div class="card p-3 shadow-sm mb-4">
+            <label class="form-label fw-bold">Select Match Event:</label>
+            <select class="form-select" onchange="if(this.value) window.location.href='/admin/game/'+this.value">
+                <option value="">-- Choose a Match Event --></option>
+                <% if (games && games.length > 0) { %>
+                    <% games.forEach(g => { %>
+                        <option value="<%= g.id %>" <%= game && game.id === g.id ? 'selected' : '' %>>
+                            <%= g.title %> (<%= g.date %> at <%= g.time %>)
+                        </option>
+                    <% }) %>
+                <% } %>
+            </select>
+        </div>
+
+        <% if (game) { %>
+            <div class="card p-4 shadow-sm mb-4">
+                <h4 class="fw-bold text-dark"><%= game.title %></h4>
+                <p class="text-muted mb-1">📅 Date: <%= game.date %> | ⏰ Time: <%= game.time %> | 📍 Location: <%= game.location %></p>
+                <p class="text-muted">Max Capacity Limit: <strong><%= game.total_slots || 22 %></strong></p>
+
+                <% 
+                    const confirmedList = bookings.filter(b => b.status === 'Confirmed');
+                    const waitlistList = bookings.filter(b => b.status === 'Waitlist');
+                    const withdrawnList = bookings.filter(b => b.status === 'Withdrawn');
+                %>
+
+                <div class="row mt-4">
+                    <!-- Confirmed Roster (Max 22) -->
+                    <div class="col-md-6 mb-3">
+                        <div class="card border-success h-100 p-3">
+                           <h5 class="text-success fw-bold">Confirmed Roster (Max <%= game.slots %>) [<%= confirmedList.length %>]</h5>
+                            <ul class="list-group list-group-flush mt-2">
+                                <% if (confirmedList.length > 0) { %>
+                                    <% confirmedList.forEach((cb, index) => { %>
+                                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                                            <span><strong><%= index + 1 %>.</strong> <%= cb.userName %> (<%= cb.userPhone %>)</span>
+                                            <span class="badge bg-success">Confirmed</span>
+                                        </li>
+                                    <% }) %>
+                                <% } else { %>
+                                    <p class="text-muted small mt-2">No confirmed players yet.</p>
+                                <% } %>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Extra Queue / Waitlist -->
+                    <div class="col-md-6 mb-3">
+                        <div class="card border-warning h-100 p-3">
+                            <h5 class="text-warning fw-dark text-dark fw-bold">Extra Queue / Waitlist [<%= waitlistList.length %>]</h5>
+                            <ul class="list-group list-group-flush mt-2">
+                                <% if (waitlistList.length > 0) { %>
+                                    <% waitlistList.forEach((wb, index) => { %>
+                                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                                            <span><strong>Queue #<%= index + 1 %>:</strong> <%= wb.userName %> (<%= wb.userPhone %>)</span>
+                                            <span class="badge bg-warning text-dark">Waiting</span>
+                                        </li>
+                                    <% }) %>
+                                <% } else { %>
+                                    <p class="text-muted small mt-2">No users in the queue.</p>
+                                <% } %>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Withdrawn List Section -->
+                <% if (withdrawnList.length > 0) { %>
+                    <div class="card border-secondary mt-3 p-3">
+                        <h5 class="text-secondary fw-bold">Withdrawn Users [<%= withdrawnList.length %>]</h5>
+                        <ul class="list-group list-group-flush mt-2">
+                            <% withdrawnList.forEach((wb) => { %>
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    <span><strong><%= wb.userName %></strong> (<%= wb.userPhone %>) - Reason: <em><%= wb.withdrawal_reason %></em></span>
+                                    <span class="badge bg-secondary">Withdrawn</span>
+                                </li>
+                            <% }) %>
+                        </ul>
+                    </div>
+                <% } %>
+            </div>
+        <% } %>
+    </div>
+
+</body>
+</html>
