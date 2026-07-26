@@ -312,18 +312,25 @@ app.post('/login', async (req, res) => {
         }
         return;
     }
-
+    
+    // (Keep your admin check block as it is, then update standard user login below)
     if (mobile === '9353863794') {
         return res.send("<script>alert('try with different number!!'); window.location.href='/';</script>");
     }
 
     try {
-        const userResult = await pool.query(`SELECT * FROM users WHERE mobile = $1`, [mobile]);
+        const identifier = mobile.trim(); // The input field name from the form is 'mobile', but can contain email or phone
+        
+        // Check matching via either mobile OR email column
+        const userResult = await pool.query(
+            `SELECT * FROM users WHERE mobile = $1 OR email = $2`, 
+            [identifier, identifier.toLowerCase()]
+        );
         const user = userResult.rows[0];
 
         if (!user) {
             await bcrypt.compare(password, '$2a$10$invalidhashdummyvaluetoensuretimingsafety123456');
-            return res.send("<script>alert('Invalid Mobile Number or Password'); window.location.href='/';</script>");
+            return res.send("<script>alert('Invalid Mobile/Email or Password'); window.location.href='/';</script>");
         }
 
         if (user.is_verified === false) {
@@ -355,7 +362,7 @@ app.post('/login', async (req, res) => {
                 return res.redirect(redirectTo);
             });
         } else {
-            return res.send("<script>alert('Invalid Mobile Number or Password'); window.location.href='/';</script>");
+            return res.send("<script>alert('Invalid Mobile/Email or Password'); window.location.href='/';</script>");
         }
     } catch (error) {
         console.error("Login error:", error);
@@ -376,36 +383,48 @@ app.post('/signup', async (req, res) => {
         return res.send("<script>alert('This mobile number cannot be registered here!'); window.location.href='/';</script>");
     }
 
+    const cleanEmail = email.trim().toLowerCase();
+    const cleanMobile = mobile.trim();
+
     try {
-        const hashedPassword = await bcrypt.hash(password, 10);
-        const otpCode = Math.floor(100000 + Math.random() * 900000).toString();
-        const otpExpires = Date.now() + 10 * 60 * 1000; 
-
-        const cleanEmail = email.trim().toLowerCase();
-        const cleanMobile = mobile.trim();
-
+        // 3. Check for existing duplication of email or mobile
         const existing = await pool.query(`SELECT * FROM users WHERE mobile = $1 OR email = $2`, [cleanMobile, cleanEmail]);
-        console.log("Existing user query result rows length:", existing.rows.length);
         
         if (existing.rows.length > 0) {
             const usr = existing.rows[0];
             if (usr.is_verified) {
-                return res.send("<script>alert('Mobile number or Email already registered!'); window.location.href='/';</script>");
+                return res.send("<script>alert('Mobile number or Email already registered and verified!'); window.location.href='/';</script>");
             } else {
-                // Explicitly update name, password, otp, AND email to ensure exact matching
+                // If the user exists but hasn't verified OTP yet, update their details and send a fresh OTP
+                const hashedPassword = await bcrypt.hash(password, 10);
+                const otpCode = Math.floor(100000 + Math.random() * 900000).toString();
+                const otpExpires = Date.now() + 10 * 60 * 1000; 
+
                 await pool.query(
-                    `UPDATE users SET name = $1, password = $2, otp_code = $3, otp_expires = $4, email = $5 WHERE id = $6`,
-                    [name.trim(), hashedPassword, otpCode, otpExpires, cleanEmail, usr.id]
+                    `UPDATE users SET name = $1, password = $2, otp_code = $3, otp_expires = $4, email = $5, mobile = $6 WHERE id = $7`,
+                    [name.trim(), hashedPassword, otpCode, otpExpires, cleanEmail, cleanMobile, usr.id]
                 );
-                console.log("Updated unverified user ID:", usr.id);
+
+                await transporter.sendMail({
+                    from: process.env.EMAIL_USER,
+                    to: cleanEmail,
+                    subject: 'Namma Nomads - Verify Your Email',
+                    text: `Hello ${name},\n\nYour 6-digit verification code is: ${otpCode}\n\nIt expires in 10 minutes.`
+                });
+
+                return res.redirect(`/verify-otp?email=${encodeURIComponent(cleanEmail)}`);
             }
-        } else {
-            const insertRes = await pool.query(
-                `INSERT INTO users (name, mobile, email, password, role, is_verified, otp_code, otp_expires) VALUES ($1, $2, $3, $4, 'player', false, $5, $6) RETURNING id`,
-                [name.trim(), cleanMobile, cleanEmail, hashedPassword, otpCode, otpExpires]
-            );
-            console.log("Inserted new user with ID:", insertRes.rows[0].id);
         }
+
+        // 1 & 2. Generate OTP and save record as unverified (Data is NOT fully active until OTP check)
+        const hashedPassword = await bcrypt.hash(password, 10);
+        const otpCode = Math.floor(100000 + Math.random() * 900000).toString();
+        const otpExpires = Date.now() + 10 * 60 * 1000; 
+
+        await pool.query(
+            `INSERT INTO users (name, mobile, email, password, role, is_verified, otp_code, otp_expires) VALUES ($1, $2, $3, $4, 'player', false, $5, $6)`,
+            [name.trim(), cleanMobile, cleanEmail, hashedPassword, otpCode, otpExpires]
+        );
 
         await transporter.sendMail({
             from: process.env.EMAIL_USER,
@@ -417,9 +436,13 @@ app.post('/signup', async (req, res) => {
         return res.redirect(`/verify-otp?email=${encodeURIComponent(cleanEmail)}`);
     } catch (error) {
         console.error("Signup error:", error.message);
+        if (error.code === '23505') { // Postgres unique violation error code
+            return res.send("<script>alert('A user with this mobile number or email already exists.'); window.location.href='/';</script>");
+        }
         return res.send("<script>alert('Error during registration or email dispatch!'); window.location.href='/';</script>");
     }
 });
+
 // OTP Verification Form / Route Support
 app.get('/verify-otp', (req, res) => {
     const email = req.query.email || '';
