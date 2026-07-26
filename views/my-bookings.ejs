@@ -60,7 +60,7 @@
                             <div class="d-flex align-items-center gap-2">
                                 <span class="badge <%= statusClass %> px-3 py-2 text-uppercase fw-bold"><%= b.status || 'Confirmed' %></span>
                                 
-                                <% if (currentStatus === 'confirmed' || currentStatus === 'waitlist') { %>
+                                <% if (currentStatus === 'confirmed' || currentStatus === 'waitlist' || currentStatus === 'pending') { %>
                                     <button type="button" class="btn btn-outline-danger btn-sm fw-bold px-3" data-bs-toggle="modal" data-bs-target="#withdrawModal" 
                                         data-booking-id="<%= b.id %>" 
                                         data-game-id="<%= b.game_id %>">
