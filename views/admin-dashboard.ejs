@@ -4,39 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Dashboard - Namma Nomads</title>
-     <!-- Browser tab icon -->
+    <!-- Browser tab icon -->
     <link rel="icon" type="image/png" href="/images/browser_icon.png">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <style>
-        .admin-nav-card {
-            border: 1px solid rgba(0,0,0,0.08);
-            border-radius: 1rem;
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
-            background: #ffffff;
-            cursor: pointer;
-        }
-        .glass-nav {
-            background: rgba(255, 255, 255, 0.15) !important; /* Adjust opacity as needed */
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px); /* Safari support */
-            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
-            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.1);   
-        }
-        .admin-nav-card:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 .5rem 1rem rgba(0,0,0,.08);
-        }
-        .dynamic-content-section {
-            display: none;
-            opacity: 0;
-            transition: opacity 0.3s ease-in-out;
-        }
-        .dynamic-content-section.active {
-            display: block;
-            opacity: 1;
-        }
-    </style>
+    <link rel="stylesheet" href="/style.css">
 </head>
 <body class="bg-light">
 
@@ -62,7 +34,7 @@
                 <div class="card admin-nav-card p-4 h-100 d-flex flex-column justify-content-between" id="create-card-trigger" onclick="switchSection('create-section', this)">
                     <div>
                         <div class="d-flex align-items-center mb-3">
-                            <div class="bg-primary bg-opacity-10 p-3 rounded-3 text-primary me-3">
+                            <div class="p-3 rounded-3 me-3" style="background-color: var(--primary-light); color: var(--primary);">
                                 <i class="fas fa-calendar-plus fa-2x"></i>
                             </div>
                             <div>
@@ -104,7 +76,7 @@
                 <div class="card admin-nav-card p-4 h-100 d-flex flex-column justify-content-between" id="photo-card-trigger" onclick="switchSection('photos-section', this)">
                     <div>
                         <div class="d-flex align-items-center mb-3">
-                            <div class="bg-success bg-opacity-10 p-3 rounded-3 text-success me-3">
+                            <div class="p-3 rounded-3 me-3" style="background-color: rgba(22, 163, 74, 0.1); color: var(--success);">
                                 <i class="fas fa-images fa-2x"></i>
                             </div>
                             <div>
@@ -114,7 +86,7 @@
                         </div>
                         <p class="text-muted small mb-4">Upload match highlights, team photos, and gallery memories or select photos to remove.</p>
                     </div>
-                    <button class="btn btn-success fw-bold py-2 w-100 pointer-events-none">
+                    <button class="btn fw-bold py-2 w-100 pointer-events-none text-white" style="background-color: var(--success);">
                         <i class="fas fa-camera me-1"></i> Gallery & Removal
                     </button>
                 </div>
@@ -127,40 +99,40 @@
         <div id="create-section" class="dynamic-content-section">
             <div class="card shadow-sm border-0 rounded-4 p-4 mb-5 bg-white position-relative">
                 <button type="button" class="btn-close position-absolute top-0 end-0 m-4" aria-label="Close" onclick="closeSection('create-section')"></button>
-                <h3 class="fw-bold mb-4 text-dark"><i class="fas fa-plus-circle text-primary me-2"></i>Create New Match Event</h3>
-                    <form action="/admin/create-game" method="POST">
-                        <div class="mb-3">
-                            <label class="form-label">Match Title</label>
-                            <input type="text" class="form-control" name="title" required>
+                <h3 class="fw-bold mb-4 text-dark"><i class="fas fa-plus-circle me-2" style="color: var(--primary);"></i>Create New Match Event</h3>
+                <form action="/admin/create-game" method="POST">
+                    <div class="mb-3">
+                        <label class="form-label">Match Title</label>
+                        <input type="text" class="form-control" name="title" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Location / Turf Name</label>
+                        <input type="text" class="form-control" name="location" required>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label">Date</label>
+                            <input type="date" class="form-control" id="gameDate" name="date" required>
                         </div>
-                        <div class="mb-3">
-                            <label class="form-label">Location / Turf Name</label>
-                            <input type="text" class="form-control" name="location" required>
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label">Time</label>
+                            <input type="text" class="form-control" name="time" placeholder="e.g. 06:00 PM - 07:30 PM" required>
                         </div>
-                        <div class="row">
-                            <div class="col-md-4 mb-3">
-                                <label class="form-label">Date</label>
-                                <input type="date" class="form-control" id="gameDate" name="date" required>
-                            </div>
-                            <div class="col-md-4 mb-3">
-                                <label class="form-label">Time</label>
-                                <input type="text" class="form-control" name="time" placeholder="e.g. 06:00 PM - 07:30 PM" required>
-                            </div>
-                            <div class="col-md-4 mb-3">
-                                <label class="form-label">Price per Slot (₹)</label>
-                                <input type="number" class="form-control" name="price" required>
-                            </div>
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label">Price per Slot (₹)</label>
+                            <input type="number" class="form-control" name="price" required>
                         </div>
-                        <div class="mb-3">
-                            <label class="form-label">Total Slots Available</label>
-                            <input type="number" class="form-control" name="slots" value="22" required>
-                        </div>
-                        <button type="submit" class="btn btn-primary">Publish Event</button>
-                    </form>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Total Slots Available</label>
+                        <input type="number" class="form-control" name="slots" value="22" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Publish Event</button>
+                </form>
             </div>
         </div>
 
-     <!-- 2. Registered Players / Events Management Section -->
+        <!-- 2. Registered Players / Events Management Section -->
         <div id="registrations-section" class="dynamic-content-section">
             <div class="card shadow-sm border-0 rounded-4 p-4 bg-white position-relative">
                 <button type="button" class="btn-close position-absolute top-0 end-0 m-4" aria-label="Close" onclick="closeSection('registrations-section')"></button>
@@ -200,7 +172,7 @@
                                                 <span class="badge bg-secondary bg-opacity-10 text-secondary px-2 py-1">Finished</span>
                                             <% } %>
                                         </td>
-                                        <td class="fw-bold text-success">₹<%= game.price %></td>
+                                        <td class="fw-bold" style="color: var(--success);">₹<%= game.price %></td>
                                         <td class="text-end">
                                             <a href="/admin/game/<%= game.id %>" class="btn btn-sm btn-outline-dark fw-bold me-1">
                                                 <i class="fas fa-users me-1"></i> Attendees
@@ -218,7 +190,6 @@
             </div>
         </div>
 
-
         <!-- 3. Add & Manage Photos Section -->
         <div id="photos-section" class="dynamic-content-section">
             <div class="row g-4">
@@ -227,7 +198,7 @@
                     <div class="card shadow-sm border-0 rounded-4 p-4 h-100 bg-white position-relative">
                         <button type="button" class="btn-close position-absolute top-0 end-0 m-4" aria-label="Close" onclick="closeSection('photos-section')"></button>
                         <div class="d-flex align-items-center mb-3">
-                            <div class="bg-success bg-opacity-10 p-3 rounded-3 text-success me-3">
+                            <div class="p-3 rounded-3 me-3" style="background-color: rgba(22, 163, 74, 0.1); color: var(--success);">
                                 <i class="fas fa-images fa-2x"></i>
                             </div>
                             <div>
@@ -247,7 +218,7 @@
                                 <label class="form-label small fw-bold text-muted">Caption</label>
                                 <input type="text" name="caption" class="form-control bg-light" placeholder="e.g. Sunday Victory Team Photo">
                             </div>
-                            <button type="submit" class="btn btn-success fw-bold py-2 w-100">
+                            <button type="submit" class="btn fw-bold py-2 w-100 text-white" style="background-color: var(--success);">
                                 <i class="fas fa-upload me-1"></i> Upload Gallery
                             </button>
                         </form>
@@ -332,20 +303,17 @@
         }
         
         function switchSection(sectionId, cardElement) {
-            // Hide all dynamic sections
             const sections = document.querySelectorAll('.dynamic-content-section');
             sections.forEach(sec => sec.classList.remove('active'));
 
-            // Remove active highlight border from cards
             const cards = document.querySelectorAll('.admin-nav-card');
-            cards.forEach(c => c.style.borderColor = 'rgba(0,0,0,0.08)');
+            cards.forEach(c => c.style.borderColor = 'var(--border-color)');
 
-            // Show target section
             const target = document.getElementById(sectionId);
             if (target) {
                 target.classList.add('active');
                 if (cardElement) {
-                    cardElement.style.borderColor = '#0d6efd';
+                    cardElement.style.borderColor = 'var(--primary)';
                 }
                 target.scrollIntoView({ behavior: 'smooth', block: 'start' });
                 localStorage.setItem('activeAdminSection', sectionId);
@@ -358,19 +326,17 @@
                 target.classList.remove('active');
             }
             const cards = document.querySelectorAll('.admin-nav-card');
-            cards.forEach(c => c.style.borderColor = 'rgba(0,0,0,0.08)');
+            cards.forEach(c => c.style.borderColor = 'var(--border-color)');
             localStorage.removeItem('activeAdminSection');
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
-        // Keep section open after page reload (e.g. after uploading or deleting a photo)
         window.addEventListener('DOMContentLoaded', () => {
             const savedSection = localStorage.getItem('activeAdminSection');
             if (savedSection) {
                 const target = document.getElementById(savedSection);
                 if (target) {
                     target.classList.add('active');
-                    // Find corresponding card trigger if possible
                     let cardId = '';
                     if (savedSection === 'create-section') cardId = 'create-card-trigger';
                     else if (savedSection === 'registrations-section') cardId = 'registrations-card-trigger';
@@ -378,12 +344,11 @@
 
                     if (cardId) {
                         const card = document.getElementById(cardId);
-                        if (card) card.style.borderColor = '#0d6efd';
+                        if (card) card.style.borderColor = 'var(--primary)';
                     }
                 }
             }
 
-            // Automatically set the minimum selectable date on the event creation form to today
             const dateInput = document.getElementById('gameDate');
             if (dateInput) {
                 const today = new Date().toISOString().split('T')[0];

@@ -1,27 +1,43 @@
-<!-- views/admin-registrations.ejs -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-     <!-- Browser tab icon -->
+    <title>Admin Event Rosters & Waitlist - Namma Nomads</title>
+    <!-- Browser tab icon -->
     <link rel="icon" type="image/png" href="/images/browser_icon.png">
-    <title>Admin Registrations - Namma Nomads</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/style.css">
 </head>
 <body class="bg-light">
 
-    <div class="container py-5">
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm border-bottom fixed-top">
+        <div class="container">
+            <a class="navbar-brand d-flex align-items-center" href="/">
+                <img src="/images/logo.png" alt="Logo" width="40" height="40" class="rounded-circle me-2">
+                <span>Namma Nomads Admin</span>
+            </a>
+            <div class="d-flex align-items-center">
+                <a href="/admin/dashboard" class="btn btn-outline-dark btn-sm me-2">
+                    <i class="fas fa-arrow-left me-1"></i> Dashboard
+                </a>
+                <a class="btn btn-outline-danger btn-sm" href="/logout">Logout</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container my-5 pt-5">
         <div class="d-flex justify-content-between align-items-center mb-4">
-            <h2 class="fw-bold">Admin Event Rosters & Waitlist</h2>
-            <a href="/admin/dashboard" class="btn btn-outline-secondary btn-sm">Back to Dashboard</a>
+            <h2 class="fw-bold text-dark mb-0"><i class="fas fa-users-cog me-2" style="color: var(--primary);"></i>Admin Event Rosters & Waitlist</h2>
         </div>
 
         <!-- Event Selection Dropdown / List -->
-        <div class="card p-3 shadow-sm mb-4">
-            <label class="form-label fw-bold">Select Match Event:</label>
-            <select class="form-select" onchange="if(this.value) window.location.href='/admin/game/'+this.value">
-                <option value="">-- Choose a Match Event --></option>
+        <div class="card p-4 shadow-sm border-0 rounded-4 mb-4 bg-white">
+            <label class="form-label fw-bold text-muted small mb-2"><i class="fas fa-filter me-1 text-primary"></i> Select Match Event:</label>
+            <select class="form-select bg-light border-0 py-2" onchange="if(this.value) window.location.href='/admin/game/'+this.value">
+                <option value="">-- Choose a Match Event --</option>
                 <% if (games && games.length > 0) { %>
                     <% games.forEach(g => { %>
                         <option value="<%= g.id %>" <%= game && game.id === g.id ? 'selected' : '' %>>
@@ -33,10 +49,14 @@
         </div>
 
         <% if (game) { %>
-            <div class="card p-4 shadow-sm mb-4">
-                <h4 class="fw-bold text-dark"><%= game.title %></h4>
-                <p class="text-muted mb-1">📅 Date: <%= game.date %> | ⏰ Time: <%= game.time %> | 📍 Location: <%= game.location %></p>
-                <p class="text-muted">Max Capacity Limit: <strong><%= game.total_slots || 22 %></strong></p>
+            <div class="card p-4 shadow-sm border-0 rounded-4 mb-4 bg-white">
+                <h4 class="fw-bold text-dark mb-1"><%= game.title %></h4>
+                <p class="text-muted small mb-1">
+                    <i class="fas fa-calendar-alt me-1 text-primary"></i> Date: <%= game.date %> &nbsp;|&nbsp; 
+                    <i class="fas fa-clock me-1 text-primary"></i> Time: <%= game.time %> &nbsp;|&nbsp; 
+                    <i class="fas fa-map-marker-alt me-1 text-danger"></i> Location: <%= game.location %>
+                </p>
+                <p class="text-muted small mb-0">Max Capacity Limit: <strong class="text-dark"><%= game.total_slots || 22 %></strong></p>
 
                 <% 
                     const confirmedList = bookings.filter(b => b.status === 'Confirmed');
@@ -44,40 +64,44 @@
                     const withdrawnList = bookings.filter(b => b.status === 'Withdrawn');
                 %>
 
-                <div class="row mt-4">
+                <div class="row mt-4 g-4">
                     <!-- Confirmed Roster (Max 22) -->
-                    <div class="col-md-6 mb-3">
-                        <div class="card border-success h-100 p-3">
-                           <h5 class="text-success fw-bold">Confirmed Roster (Max <%= game.slots %>) [<%= confirmedList.length %>]</h5>
-                            <ul class="list-group list-group-flush mt-2">
+                    <div class="col-md-6">
+                        <div class="card border-0 shadow-sm rounded-4 h-100 p-4 bg-light">
+                             <h5 class="fw-bold mb-3 d-flex align-items-center" style="color: var(--success);">
+                                <i class="fas fa-check-circle me-2"></i>Confirmed Roster (Max <%= game.slots %>) [<%= confirmedList.length %>]
+                             </h5>
+                            <ul class="list-group list-group-flush bg-transparent">
                                 <% if (confirmedList.length > 0) { %>
                                     <% confirmedList.forEach((cb, index) => { %>
-                                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                                        <li class="list-group-item bg-white border-0 rounded-3 mb-2 shadow-sm d-flex justify-content-between align-items-center py-3 px-3">
                                             <span><strong><%= index + 1 %>.</strong> <%= cb.userName %> (<%= cb.userPhone %>)</span>
-                                            <span class="badge bg-success">Confirmed</span>
+                                            <span class="badge bg-success bg-opacity-10 text-success px-2 py-1">Confirmed</span>
                                         </li>
                                     <% }) %>
                                 <% } else { %>
-                                    <p class="text-muted small mt-2">No confirmed players yet.</p>
+                                    <p class="text-muted small mt-2 mb-0">No confirmed players yet.</p>
                                 <% } %>
                             </ul>
                         </div>
                     </div>
 
                     <!-- Extra Queue / Waitlist -->
-                    <div class="col-md-6 mb-3">
-                        <div class="card border-warning h-100 p-3">
-                            <h5 class="text-warning fw-dark text-dark fw-bold">Extra Queue / Waitlist [<%= waitlistList.length %>]</h5>
-                            <ul class="list-group list-group-flush mt-2">
+                    <div class="col-md-6">
+                        <div class="card border-0 shadow-sm rounded-4 h-100 p-4 bg-light">
+                            <h5 class="fw-bold mb-3 text-warning d-flex align-items-center">
+                                <i class="fas fa-clock me-2"></i>Extra Queue / Waitlist [<%= waitlistList.length %>]
+                            </h5>
+                            <ul class="list-group list-group-flush bg-transparent">
                                 <% if (waitlistList.length > 0) { %>
                                     <% waitlistList.forEach((wb, index) => { %>
-                                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                                        <li class="list-group-item bg-white border-0 rounded-3 mb-2 shadow-sm d-flex justify-content-between align-items-center py-3 px-3">
                                             <span><strong>Queue #<%= index + 1 %>:</strong> <%= wb.userName %> (<%= wb.userPhone %>)</span>
-                                            <span class="badge bg-warning text-dark">Waiting</span>
+                                            <span class="badge bg-warning bg-opacity-10 text-warning px-2 py-1">Waiting</span>
                                         </li>
                                     <% }) %>
                                 <% } else { %>
-                                    <p class="text-muted small mt-2">No users in the queue.</p>
+                                    <p class="text-muted small mt-2 mb-0">No users in the queue.</p>
                                 <% } %>
                             </ul>
                         </div>
@@ -86,13 +110,15 @@
 
                 <!-- Withdrawn List Section -->
                 <% if (withdrawnList.length > 0) { %>
-                    <div class="card border-secondary mt-3 p-3">
-                        <h5 class="text-secondary fw-bold">Withdrawn Users [<%= withdrawnList.length %>]</h5>
-                        <ul class="list-group list-group-flush mt-2">
+                    <div class="card border-0 shadow-sm rounded-4 mt-4 p-4 bg-light">
+                        <h5 class="text-secondary fw-bold mb-3 d-flex align-items-center">
+                            <i class="fas fa-user-slash me-2"></i>Withdrawn Users [<%= withdrawnList.length %>]
+                        </h5>
+                        <ul class="list-group list-group-flush bg-transparent">
                             <% withdrawnList.forEach((wb) => { %>
-                                <li class="list-group-item d-flex justify-content-between align-items-center">
-                                    <span><strong><%= wb.userName %></strong> (<%= wb.userPhone %>) - Reason: <em><%= wb.withdrawal_reason %></em></span>
-                                    <span class="badge bg-secondary">Withdrawn</span>
+                                <li class="list-group-item bg-white border-0 rounded-3 mb-2 shadow-sm d-flex justify-content-between align-items-center py-3 px-3">
+                                    <span><strong><%= wb.userName %></strong> (<%= wb.userPhone %>) - Reason: <em class="text-muted"><%= wb.withdrawal_reason %></em></span>
+                                    <span class="badge bg-secondary bg-opacity-10 text-secondary px-2 py-1">Withdrawn</span>
                                 </li>
                             <% }) %>
                         </ul>
@@ -102,5 +128,6 @@
         <% } %>
     </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

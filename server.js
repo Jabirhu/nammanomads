@@ -490,6 +490,10 @@ app.post('/verify-otp', async (req, res) => {
 app.post('/resend-otp', async (req, res) => {
     try {
         const { email } = req.body;
+        if (!email) {
+            return res.status(400).json({ success: false, message: 'Email is required.' });
+        }
+
         const normalizedEmail = email.trim().toLowerCase();
 
         const userResult = await pool.query('SELECT * FROM users WHERE email = $1', [normalizedEmail]);
@@ -528,19 +532,17 @@ app.post('/resend-otp', async (req, res) => {
             [newOtp, newExpires, currentCount + 1, currentDate, user.id]
         );
 
-        // Send Email via Nodemailer
-        const mailOptions = {
-            from: process.env.EMAIL_USER,
+        // Send Email via Resend API
+        await resend.emails.send({
+            from: 'Namma Nomads <onboarding@resend.dev>',
             to: normalizedEmail,
             subject: 'Your Resent Namma Nomads Verification Code',
             text: `Your new 6-digit verification code is: ${newOtp}\n\nIt expires in 10 minutes.`
-        };
-
-        await transporter.sendMail(mailOptions);
+        });
 
         return res.json({ success: true, message: 'New OTP sent successfully!' });
     } catch (err) {
-        console.error('Error resending OTP:', err);
+        console.error('Error resending OTP:', err.message);
         return res.status(500).json({ success: false, message: 'Server error while resending OTP.' });
     }
 });

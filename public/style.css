@@ -1,0 +1,176 @@
+/* ========================================================================= */
+/* START OF MAIN STYLESHEET (public/style.css)                               */
+/* ========================================================================= */
+
+:root {
+    --primary: #0083B0;
+    --primary-hover: #00668a;
+    --success: #10B981;
+    --warning: #F59E0B;
+    --danger: #EF4444;
+    --dark: #1F2937;
+    --light: #F9FAFB;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    color: var(--dark);
+    background-color: var(--light);
+    overflow-x: hidden;
+}
+
+/* Glassmorphism Navigation */
+.glass-nav {
+    background: rgba(255, 255, 255, 0.85) !important;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.08);
+    transition: all 0.3s ease;
+}
+
+/* Fullscreen Loading Screen */
+#page-loader {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: #ffffff;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 99999;
+    transition: opacity 0.5s ease, visibility 0.5s ease;
+}
+
+.loader-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+}
+
+.pulsing-logo {
+    width: 90px;
+    height: 90px;
+    object-fit: contain;
+    animation: colorShift 2s infinite ease-in-out, pulseGlow 1s infinite alternate;
+}
+
+@keyframes colorShift {
+    0%   { filter: hue-rotate(0deg) drop-shadow(0 0 10px rgba(0, 131, 176, 0.4)); }
+    33%  { filter: hue-rotate(120deg) drop-shadow(0 0 15px rgba(16, 185, 129, 0.4)); }
+    66%  { filter: hue-rotate(240deg) drop-shadow(0 0 15px rgba(236, 72, 153, 0.4)); }
+    100% { filter: hue-rotate(360deg) drop-shadow(0 0 10px rgba(0, 131, 176, 0.4)); }
+}
+
+@keyframes pulseGlow {
+    0% { transform: scale(0.95); }
+    100% { transform: scale(1.08); }
+}
+
+.loader-bar {
+    width: 120px;
+    height: 3px;
+    background: rgba(0, 0, 0, 0.05);
+    border-radius: 3px;
+    overflow: hidden;
+    position: relative;
+}
+
+.loader-bar::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, var(--primary), transparent);
+    animation: loadingSlide 1.2s infinite linear;
+}
+
+@keyframes loadingSlide {
+    0% { left: -100%; }
+    100% { left: 100%; }
+}
+
+body.loaded #page-loader {
+    opacity: 0;
+    visibility: hidden;
+}
+
+/* Custom Golden Metallic Styling for Admin Actions */
+.btn-golden-metal {
+    background: linear-gradient(135deg, #BF953F 0%, #FCF6BA 25%, #B38728 50%, #FBF5B7 75%, #AA771C 100%);
+    border: 1px solid #9A6A19;
+    color: #3b2800 !important;
+    font-weight: bold;
+    box-shadow: 0 4px 12px rgba(170, 119, 28, 0.3);
+    transition: all 0.3s ease;
+}
+
+.btn-golden-metal:hover {
+    background: linear-gradient(135deg, #AA771C 0%, #FBF5B7 25%, #B38728 50%, #FCF6BA 75%, #BF953F 100%);
+    color: #1a1200 !important;
+    border-color: #7A5110;
+    box-shadow: 0 6px 16px rgba(170, 119, 28, 0.5);
+}
+
+/* Password Visibility Wrapper & Toggle Icons */
+.password-wrapper {
+    position: relative;
+}
+
+.password-wrapper .form-control {
+    padding-right: 48px;
+}
+
+.toggle-password {
+    position: absolute;
+    top: 50%;
+    right: 14px;
+    transform: translateY(-50%);
+    border: none;
+    background: transparent;
+    padding: 4px;
+    margin: 0;
+    color: #6c757d;
+    font-size: 1.15rem;
+    line-height: 1;
+    cursor: pointer;
+    z-index: 5;
+    transition: color 0.2s ease;
+}
+
+.toggle-password:hover {
+    color: var(--primary);
+}
+
+.toggle-password:focus {
+    outline: none;
+    color: var(--primary);
+}
+
+/* General Layout & Helpers */
+.cursor-pointer {
+    cursor: pointer;
+}
+
+.hero-section {
+    background: linear-gradient(rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.8)), url('/images/bg.png') center/cover no-repeat;
+}
+
+/* Cards & Modals Enhancements */
+.card {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08) !important;
+}
+
+/* ========================================================================= */
+/* END OF MAIN STYLESHEET (public/style.css)                                 */
+/* ========================================================================= */

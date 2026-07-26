@@ -7,147 +7,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Namma Nomads | Inclusive Football Community</title>
+    <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-
-    <link
-        rel="stylesheet"
-        href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
-    >
-
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <!-- External Custom Stylesheet -->
     <link rel="stylesheet" href="/style.css">
-    <!-- Browser tab icon -->
+    <!-- Browser Tab Icon -->
     <link rel="icon" type="image/png" href="/images/browser_icon.png">
-
-    <style>
-        .glass-nav {
-            background: rgba(255, 255, 255, 0.15) !important;
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
-            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.1);
-        }
-
-        /* Fullscreen Loading Screen */
-        #page-loader {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
-            background-color: #ffffff;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 99999;
-            transition: opacity 0.5s ease, visibility 0.5s ease;
-        }
-
-        .loader-content {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 20px;
-        }
-
-        .pulsing-logo {
-            width: 90px;
-            height: 90px;
-            object-fit: contain;
-            animation: colorShift 2s infinite ease-in-out, pulseGlow 1s infinite alternate;
-        }
-
-        @keyframes colorShift {
-            0%   { filter: hue-rotate(0deg) drop-shadow(0 0 10px rgba(0, 131, 176, 0.4)); }
-            33%  { filter: hue-rotate(120deg) drop-shadow(0 0 15px rgba(16, 185, 129, 0.4)); }
-            66%  { filter: hue-rotate(240deg) drop-shadow(0 0 15px rgba(236, 72, 153, 0.4)); }
-            100% { filter: hue-rotate(360deg) drop-shadow(0 0 10px rgba(0, 131, 176, 0.4)); }
-        }
-
-        @keyframes pulseGlow {
-            0% { transform: scale(0.95); }
-            100% { transform: scale(1.08); }
-        }
-
-        .loader-bar {
-            width: 120px;
-            height: 3px;
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 3px;
-            overflow: hidden;
-            position: relative;
-        }
-
-        .loader-bar::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, #0083B0, transparent);
-            animation: loadingSlide 1.2s infinite linear;
-        }
-
-        @keyframes loadingSlide {
-            0% { left: -100%; }
-            100% { left: 100%; }
-        }
-
-        body.loaded #page-loader {
-            opacity: 0;
-            visibility: hidden;
-        }
-
-        /* Custom Golden Metallic Styling for Admin Actions */
-        .btn-golden-metal {
-            background: linear-gradient(135deg, #BF953F 0%, #FCF6BA 25%, #B38728 50%, #FBF5B7 75%, #AA771C 100%);
-            border: 1px solid #9A6A19;
-            color: #3b2800 !important;
-            font-weight: bold;
-            box-shadow: 0 4px 12px rgba(170, 119, 28, 0.3);
-            transition: all 0.3s ease;
-        }
-        .btn-golden-metal:hover {
-            background: linear-gradient(135deg, #AA771C 0%, #FBF5B7 25%, #B38728 50%, #FCF6BA 75%, #BF953F 100%);
-            color: #1a1200 !important;
-            border-color: #7A5110;
-            box-shadow: 0 6px 16px rgba(170, 119, 28, 0.5);
-        }
-        .password-wrapper {
-            position: relative;
-        }
-
-        .password-wrapper .form-control {
-            padding-right: 48px;
-        }
-
-        .toggle-password {
-            position: absolute;
-            top: 50%;
-            right: 14px;
-            transform: translateY(-50%);
-            border: none;
-            background: transparent;
-            padding: 4px;
-            margin: 0;
-            color: #6c757d;
-            font-size: 1.15rem;
-            line-height: 1;
-            cursor: pointer;
-            z-index: 5;
-        }
-
-        .toggle-password:hover {
-            color: #0083B0;
-        }
-
-        .toggle-password:focus {
-            outline: none;
-            color: #0083B0;
-        }
-
-    </style>
-
 </head>
 <body>
 
@@ -168,7 +35,7 @@
                 <img src="/images/browser_icon.png" alt="Namma Nomads Logo" style="width: 32px; height: 32px; object-fit: cover; margin-right: 10px; border-radius: 50%;">
                 <span>Namma Nomads</span>
             </a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
@@ -201,7 +68,7 @@
     <!-- HERO SECTION                                                          -->
     <!-- ===================================================================== -->
     <header class="hero-section text-white text-center py-5">
-        <div class="container">
+        <div class="container py-4">
             <img src="/images/bg.png" alt="Banner" class="img-fluid mb-4 rounded shadow" style="max-height: 180px; object-fit: cover;">
             <h1 class="display-4 fw-bold text-dark">Play Together. Stay Together.</h1>
             <p class="lead text-secondary text-dark">Bangalore's premier co-ed football community where men and women share the pitch equally.</p>
@@ -218,7 +85,7 @@
     <section id="about" class="py-5 bg-light">
         <div class="container">
             <div class="row align-items-center">
-                <div class="col-md-6">
+                <div class="col-md-6 mb-4 mb-md-0">
                     <h2 class="fw-bold" style="color: #0083B0;">About Namma Nomads</h2>
                     <p class="mt-3">Namma Nomads is more than just a football group—it's an inclusive community built for passionate players of all backgrounds. We break barriers by hosting mixed-gender co-ed football matches where both men and women play together on the same field with high sportsmanship, mutual respect, and competitive fun.</p>
                 </div>
@@ -226,8 +93,8 @@
                     <div class="p-4 bg-white shadow rounded border">
                         <h4 class="fw-bold" style="color: #0083B0;">Core Community Values</h4>
                         <ul class="list-unstyled mt-3 text-start">
-                            <li>⚽ Inclusive Co-Ed Play for Men & Women</li>
-                            <li>🤝 Respect, Safety, and Fair Play on Pitch</li>
+                            <li class="mb-2">⚽ Inclusive Co-Ed Play for Men & Women</li>
+                            <li class="mb-2">🤝 Respect, Safety, and Fair Play on Pitch</li>
                             <li>📅 Multiple daily slots for working professionals</li>
                         </ul>
                     </div>
@@ -359,9 +226,9 @@
                         </div>
                     <% }) %>
                 <% } else { %>
-                    <div class="col-md-4 mb-3"><img src="/images/gal1.png" class="img-fluid rounded shadow" alt="Gallery"></div>
-                    <div class="col-md-4 mb-3"><img src="/images/gal2.png" class="img-fluid rounded shadow" alt="Gallery"></div>
-                    <div class="col-md-4 mb-3"><img src="/images/gal3.png" class="img-fluid rounded shadow" alt="Gallery"></div>
+                    <div class="col-md-4 mb-3"><img src="/images/gal1.png" class="img-fluid rounded shadow w-100" style="height: 220px; object-fit: cover;" alt="Gallery"></div>
+                    <div class="col-md-4 mb-3"><img src="/images/gal2.png" class="img-fluid rounded shadow w-100" style="height: 220px; object-fit: cover;" alt="Gallery"></div>
+                    <div class="col-md-4 mb-3"><img src="/images/gal3.png" class="img-fluid rounded shadow w-100" style="height: 220px; object-fit: cover;" alt="Gallery"></div>
                 <% } %>
             </div>
         </div>
@@ -382,11 +249,11 @@
                         <div>
                             <!-- Top Tabs -->
                             <div class="d-flex align-items-center mb-4 pb-2 border-bottom">
-                                <span class="fw-bold fs-5 text-dark cursor-pointer" id="login-tab-btn" style="cursor: pointer;">Login</span>
+                                <span class="fw-bold fs-5 text-dark cursor-pointer" id="login-tab-btn">Login</span>
                                 <span class="mx-2 text-muted">/</span>
-                                <span class="fw-bold fs-5 text-muted cursor-pointer" id="register-tab-btn" style="cursor: pointer;">Register</span>
+                                <span class="fw-bold fs-5 text-muted cursor-pointer" id="register-tab-btn">Register</span>
                                 <span class="mx-2 text-muted">/</span>
-                                <span class="fw-bold fs-5 text-muted cursor-pointer" id="admin-tab-btn" style="cursor: pointer;">Admin</span>
+                                <span class="fw-bold fs-5 text-muted cursor-pointer" id="admin-tab-btn">Admin</span>
                             </div>
                     
                             <!-- Login Form -->
@@ -425,17 +292,20 @@
                                     </div>
 
                                     <div class="mb-3"> 
-                                        <label for="registerPassword" class="form-label text-muted small fw-semibold" > Password </label> 
+                                        <label for="registerPassword" class="form-label text-muted small fw-semibold">Password</label> 
                                         <div class="password-wrapper"> 
-                                            <input type="password" class="form-control" id="registerPassword" name="password" minlength="6" autocomplete="new-password" required > 
-                                            <button type="button" class="toggle-password" data-target="registerPassword" aria-label="Show password" title="Show password" > <i class="bi bi-eye-slash"></i> </button> 
+                                            <input type="password" class="form-control" id="registerPassword" name="password" minlength="6" autocomplete="new-password" required> 
+                                            <button type="button" class="toggle-password" data-target="registerPassword" aria-label="Show password" title="Show password"><i class="bi bi-eye-slash"></i></button> 
                                         </div> 
-                                        <div class="form-text text-muted" style="font-size: 0.75rem;" > Must be at least 6 characters long. </div>
+                                        <div class="form-text text-muted" style="font-size: 0.75rem;">Must be at least 6 characters long.</div>
                                     </div> 
 
-                                    <div class="mb-4"> <label for="confirmPassword" class="form-label text-muted small fw-semibold" > Confirm Password </label> 
-                                        <div class="password-wrapper"> <input type="password" class="form-control" id="confirmPassword" autocomplete="new-password" required > 
-                                        <button type="button" class="toggle-password" data-target="confirmPassword" aria-label="Show password" title="Show password" > <i class="bi bi-eye-slash"></i> </button> </div> 
+                                    <div class="mb-4"> 
+                                        <label for="confirmPassword" class="form-label text-muted small fw-semibold">Confirm Password</label> 
+                                        <div class="password-wrapper"> 
+                                            <input type="password" class="form-control" id="confirmPassword" autocomplete="new-password" required> 
+                                            <button type="button" class="toggle-password" data-target="confirmPassword" aria-label="Show password" title="Show password"><i class="bi bi-eye-slash"></i></button> 
+                                        </div> 
                                     </div>
                                     
                                     <div id="registerError" class="alert alert-danger d-none py-2 small mb-3" role="alert"></div>
@@ -495,204 +365,157 @@
         <p class="mb-0">&copy; 2026 Namma Nomads Football Community. All rights reserved.</p>
     </footer>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Bootstrap JS Bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
-<script>
-/* =========================================================
-   PAGE LOADER
-========================================================= */
-window.addEventListener('load', () => {
-    setTimeout(() => {
-        document.body.classList.add('loaded');
-    }, 400);
-});
-
-
-/* =========================================================
-   PAGE INTERACTIONS
-========================================================= */
-document.addEventListener('DOMContentLoaded', () => {
-
-    /* -----------------------------------------------------
-       LOGIN / REGISTER / ADMIN TAB SWITCHING
-    ----------------------------------------------------- */
-    const loginTabBtn = document.getElementById('login-tab-btn');
-    const registerTabBtn = document.getElementById('register-tab-btn');
-    const adminTabBtn = document.getElementById('admin-tab-btn');
-
-    const loginPane = document.getElementById('loginPane');
-    const signupPane = document.getElementById('signupPane');
-    const adminPane = document.getElementById('adminPane');
-
-    function setActiveTab(activeButton, activePane) {
-        const tabButtons = [
-            loginTabBtn,
-            registerTabBtn,
-            adminTabBtn
-        ].filter(Boolean);
-
-        const panes = [
-            loginPane,
-            signupPane,
-            adminPane
-        ].filter(Boolean);
-
-        tabButtons.forEach(button => {
-            button.classList.remove('text-dark', 'fw-bold');
-            button.classList.add('text-muted');
-        });
-
-        panes.forEach(pane => {
-            pane.classList.add('d-none');
-        });
-
-        activeButton.classList.remove('text-muted');
-        activeButton.classList.add('text-dark', 'fw-bold');
-        activePane.classList.remove('d-none');
-    }
-
-    if (loginTabBtn && loginPane) {
-        loginTabBtn.addEventListener('click', () => {
-            setActiveTab(loginTabBtn, loginPane);
-        });
-    }
-
-    if (registerTabBtn && signupPane) {
-        registerTabBtn.addEventListener('click', () => {
-            setActiveTab(registerTabBtn, signupPane);
-        });
-    }
-
-    if (adminTabBtn && adminPane) {
-        adminTabBtn.addEventListener('click', () => {
-            setActiveTab(adminTabBtn, adminPane);
-        });
-    }
-
-
-    /* -----------------------------------------------------
-       AUTO-OPEN LOGIN MODAL AFTER SIGN-UP
-    ----------------------------------------------------- */
-    const urlParams = new URLSearchParams(window.location.search);
-
-    if (urlParams.get('login') === 'open') {
-        const modalElement = document.getElementById('authModal');
-
-        if (modalElement) {
-            const authModal = bootstrap.Modal.getOrCreateInstance(modalElement);
-            authModal.show();
-        }
-    }
-
-
-    /* -----------------------------------------------------
-       LOGIN INTERCEPTOR FOR BOOKING BUTTONS
-    ----------------------------------------------------- */
-    const loginButtons = document.querySelectorAll('.login-trigger-btn');
-
-    loginButtons.forEach(button => {
-        button.addEventListener('click', event => {
-            const isLoggedIn =
-                button.getAttribute('data-logged-in') === 'true';
-
-            if (!isLoggedIn) {
-                event.preventDefault();
-
-                const modalElement = document.getElementById('authModal');
-
-                if (modalElement) {
-                    const authModal =
-                        bootstrap.Modal.getOrCreateInstance(modalElement);
-
-                    authModal.show();
-                }
-            }
-        });
+    <script>
+    /* =========================================================
+       PAGE LOADER
+    ========================================================= */
+    window.addEventListener('load', () => {
+        setTimeout(() => {
+            document.body.classList.add('loaded');
+        }, 400);
     });
 
+    /* =========================================================
+       PAGE INTERACTIONS
+    ========================================================= */
+    document.addEventListener('DOMContentLoaded', () => {
 
-    /* -----------------------------------------------------
-       PASSWORD VISIBILITY TOGGLE
-    ----------------------------------------------------- */
-    const passwordToggleButtons =
-        document.querySelectorAll('.toggle-password');
-    
-    passwordToggleButtons.forEach(button => {
-        button.addEventListener('click', () => {
-            const targetId = button.dataset.target;
-            const input = document.getElementById(targetId);
-            const icon = button.querySelector('i');
-        
-            if (!input || !icon) {
-                return;
+        /* -----------------------------------------------------
+           LOGIN / REGISTER / ADMIN TAB SWITCHING
+        ----------------------------------------------------- */
+        const loginTabBtn = document.getElementById('login-tab-btn');
+        const registerTabBtn = document.getElementById('register-tab-btn');
+        const adminTabBtn = document.getElementById('admin-tab-btn');
+
+        const loginPane = document.getElementById('loginPane');
+        const signupPane = document.getElementById('signupPane');
+        const adminPane = document.getElementById('adminPane');
+
+        function setActiveTab(activeButton, activePane) {
+            const tabButtons = [loginTabBtn, registerTabBtn, adminTabBtn].filter(Boolean);
+            const panes = [loginPane, signupPane, adminPane].filter(Boolean);
+
+            tabButtons.forEach(button => {
+                button.classList.remove('text-dark', 'fw-bold');
+                button.classList.add('text-muted');
+            });
+
+            panes.forEach(pane => {
+                pane.classList.add('d-none');
+            });
+
+            activeButton.classList.remove('text-muted');
+            activeButton.classList.add('text-dark', 'fw-bold');
+            activePane.classList.remove('d-none');
+        }
+
+        if (loginTabBtn && loginPane) {
+            loginTabBtn.addEventListener('click', () => setActiveTab(loginTabBtn, loginPane));
+        }
+
+        if (registerTabBtn && signupPane) {
+            registerTabBtn.addEventListener('click', () => setActiveTab(registerTabBtn, signupPane));
+        }
+
+        if (adminTabBtn && adminPane) {
+            adminTabBtn.addEventListener('click', () => setActiveTab(adminTabBtn, adminPane));
+        }
+
+        /* -----------------------------------------------------
+           AUTO-OPEN LOGIN MODAL AFTER SIGN-UP
+        ----------------------------------------------------- */
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.get('login') === 'open') {
+            const modalElement = document.getElementById('authModal');
+            if (modalElement) {
+                const authModal = bootstrap.Modal.getOrCreateInstance(modalElement);
+                authModal.show();
             }
-        
-            const passwordIsHidden = input.type === 'password';
-        
-            if (passwordIsHidden) {
-                input.type = 'text';
-            
-                icon.classList.remove('bi-eye-slash');
-                icon.classList.add('bi-eye');
-            
-                button.setAttribute('aria-label', 'Hide password');
-                button.setAttribute('title', 'Hide password');
-            } else {
-                input.type = 'password';
-            
-                icon.classList.remove('bi-eye');
-                icon.classList.add('bi-eye-slash');
-            
-                button.setAttribute('aria-label', 'Show password');
-                button.setAttribute('title', 'Show password');
-            }
+        }
+
+        /* -----------------------------------------------------
+           LOGIN INTERCEPTOR FOR BOOKING BUTTONS
+        ----------------------------------------------------- */
+        const loginButtons = document.querySelectorAll('.login-trigger-btn');
+        loginButtons.forEach(button => {
+            button.addEventListener('click', event => {
+                const isLoggedIn = button.getAttribute('data-logged-in') === 'true';
+                if (!isLoggedIn) {
+                    event.preventDefault();
+                    const modalElement = document.getElementById('authModal');
+                    if (modalElement) {
+                        const authModal = bootstrap.Modal.getOrCreateInstance(modalElement);
+                        authModal.show();
+                    }
+                }
+            });
         });
-    });;
 
-
-    /* -----------------------------------------------------
-       REGISTRATION FORM VALIDATION
-    ----------------------------------------------------- */
-    const registerForm = document.getElementById('registerForm');
-    const password = document.getElementById('registerPassword');
-    const confirmPassword = document.getElementById('confirmPassword');
-    const errorAlert = document.getElementById('registerError');
-
-    if (
-        registerForm &&
-        password &&
-        confirmPassword &&
-        errorAlert
-    ) {
-        registerForm.addEventListener('submit', event => {
-            errorAlert.classList.add('d-none');
-            errorAlert.textContent = '';
-
-            if (password.value.length < 6) {
-                event.preventDefault();
-
-                errorAlert.textContent =
-                    'Password must be at least 6 characters long.';
-
-                errorAlert.classList.remove('d-none');
-                password.focus();
-                return;
-            }
-
-            if (password.value !== confirmPassword.value) {
-                event.preventDefault();
-
-                errorAlert.textContent =
-                    'Passwords do not match. Please check and try again.';
-
-                errorAlert.classList.remove('d-none');
-                confirmPassword.focus();
-            }
+        /* -----------------------------------------------------
+           PASSWORD VISIBILITY TOGGLE
+        ----------------------------------------------------- */
+        const passwordToggleButtons = document.querySelectorAll('.toggle-password');
+        passwordToggleButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                const targetId = button.dataset.target;
+                const input = document.getElementById(targetId);
+                const icon = button.querySelector('i');
+            
+                if (!input || !icon) return;
+            
+                const passwordIsHidden = input.type === 'password';
+            
+                if (passwordIsHidden) {
+                    input.type = 'text';
+                    icon.classList.remove('bi-eye-slash');
+                    icon.classList.add('bi-eye');
+                    button.setAttribute('aria-label', 'Hide password');
+                    button.setAttribute('title', 'Hide password');
+                } else {
+                    input.type = 'password';
+                    icon.classList.remove('bi-eye');
+                    icon.classList.add('bi-eye-slash');
+                    button.setAttribute('aria-label', 'Show password');
+                    button.setAttribute('title', 'Show password');
+                }
+            });
         });
-    }
 
-});
-</script>
+        /* -----------------------------------------------------
+           REGISTRATION FORM VALIDATION
+        ----------------------------------------------------- */
+        const registerForm = document.getElementById('registerForm');
+        const password = document.getElementById('registerPassword');
+        const confirmPassword = document.getElementById('confirmPassword');
+        const errorAlert = document.getElementById('registerError');
+
+        if (registerForm && password && confirmPassword && errorAlert) {
+            registerForm.addEventListener('submit', event => {
+                errorAlert.classList.add('d-none');
+                errorAlert.textContent = '';
+
+                if (password.value.length < 6) {
+                    event.preventDefault();
+                    errorAlert.textContent = 'Password must be at least 6 characters long.';
+                    errorAlert.classList.remove('d-none');
+                    password.focus();
+                    return;
+                }
+
+                if (password.value !== confirmPassword.value) {
+                    event.preventDefault();
+                    errorAlert.textContent = 'Passwords do not match. Please check and try again.';
+                    errorAlert.classList.remove('d-none');
+                    confirmPassword.focus();
+                }
+            });
+        }
+
+    });
+    </script>
 
 </body>
 </html>
