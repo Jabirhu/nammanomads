@@ -26,7 +26,10 @@ const transporter = nodemailer.createTransport({
     auth: {
         user: process.env.EMAIL_USER,
         pass: process.env.EMAIL_PASS
-    }
+    },
+    socketTimeout: 30000,
+    connectionTimeout: 30000,
+    family: 4 // Forces IPv4 to bypass Render network routing restrictions
 });
 
 // PostgreSQL Database Connection Pool Setup
@@ -312,7 +315,7 @@ app.post('/login', async (req, res) => {
         }
         return;
     }
-    
+
     // (Keep your admin check block as it is, then update standard user login below)
     if (mobile === '9353863794') {
         return res.send("<script>alert('try with different number!!'); window.location.href='/';</script>");
