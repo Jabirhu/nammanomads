@@ -106,6 +106,9 @@ app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 app.set('view engine', 'ejs');
 
+// Crucial fix: Trust proxy for Render / HTTPS load balancers
+app.set('trust proxy', 1);
+
 // Secure Session Configuration
 app.use(session({
     secret: process.env.SESSION_SECRET || crypto.randomBytes(64).toString('hex'),
@@ -251,46 +254,45 @@ app.post('/login', async (req, res) => {
     if (!mobile || !password) {
         return res.send("<script>alert('All fields are required'); window.location.href='/';</script>");
     }
+
     if (is_admin_form === 'true') {
         try {
-            // Special direct override for the admin mobile number to guarantee access on live hosts
-            if (mobile === '9353863794') {
-                const userResult = await pool.query(`SELECT * FROM users WHERE mobile = $1`, [mobile]);
-                const user = userResult.rows[0];
+            const userResult = await pool.query(`SELECT * FROM users WHERE mobile = $1`, [mobile]);
+            const user = userResult.rows[0];
 
-                let match = false;
-                if (user && user.password) {
-                    if (user.password.startsWith('$2')) {
-                        match = await bcrypt.compare(password, user.password);
-                    } else {
-                        match = (password === user.password);
-                    }
-                }
-
-                // Fallback: if password matches OR you want to ensure the hardcoded admin pass works as a backup
-                if (match || password === 'Nico@mads987') {
-                    req.session.regenerate((err) => {
-                        if (err) return res.status(500).send("Session error");
-                        req.session.user = { 
-                            id: user ? user.id : 0,
-                            mobile: '9353863794', 
-                            name: user ? user.name : 'Admin', 
-                            role: 'admin',
-                            isAdmin: true 
-                        };
-                        return res.redirect('/admin/dashboard');
-                    });
-                    return;
-                }
+            if (!user) {
+                await bcrypt.compare(password, '$2a$10$invalidhashdummyvaluetoensuretimingsafety123456');
+                return res.send("<script>alert('Invalid Admin Credentials!'); window.location.href='/';</script>");
             }
 
-            return res.send("<script>alert('Access Denied! Admin only.'); window.location.href='/';</script>");
+            let match = false;
+            if (user.password.startsWith('$2')) {
+                match = await bcrypt.compare(password, user.password);
+            } else {
+                match = (password === user.password);
+            }
+
+            if (match && (user.role === 'admin' || mobile === '9353863794')) {
+                req.session.regenerate((err) => {
+                    if (err) return res.status(500).send("Session error");
+                    req.session.user = { 
+                        id: user.id,
+                        mobile: user.mobile, 
+                        name: user.name, 
+                        role: user.role,
+                        isAdmin: true 
+                    };
+                    return res.redirect('/admin/dashboard');
+                });
+            } else {
+                return res.send("<script>alert('Invalid Admin Credentials!'); window.location.href='/';</script>");
+            }
         } catch (error) {
             console.error("Admin login error:", error);
             return res.send("<script>alert('An error occurred during admin login.'); window.location.href='/';</script>");
         }
+        return;
     }
-
 
     if (mobile === '9353863794') {
         return res.send("<script>alert('try with different number!!'); window.location.href='/';</script>");
