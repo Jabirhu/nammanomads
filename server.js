@@ -426,39 +426,32 @@ app.get('/verify-otp', (req, res) => {
     res.render('verify-otp', { email });
 });
 
-// --- 1. VERIFY OTP ROUTE (Remove alert, redirect to sign-in) ---
+// --- 1. VERIFY OTP ROUTE ---
 app.post('/verify-otp', async (req, res) => {
     try {
         const { email, otp } = req.body;
         const normalizedEmail = email.trim().toLowerCase();
 
-        // Fetch user matching email and otp
-        const { data: users, error } = await supabase
-            .from('users')
-            .select('*')
-            .eq('email', normalizedEmail);
+        // Fetch user matching email using pool
+        const userResult = await pool.query('SELECT * FROM users WHERE email = $1', [normalizedEmail]);
+        const user = userResult.rows[0];
 
-        if (error || !users || users.length === 0) {
+        if (!user) {
             return res.render('verify-otp', { errorMessage: 'Invalid or expired OTP.', email: normalizedEmail });
         }
 
-        const user = users[0];
-
-        if (user.otp !== otp) {
-            return res.render('verify-otp', { errorMessage: 'Incorrect OTP code.', email: normalizedEmail });
+        if (user.otp_code !== otp || Date.now() > Number(user.otp_expires)) {
+            return res.render('verify-otp', { errorMessage: 'Incorrect or expired OTP code.', email: normalizedEmail });
         }
 
-        // Mark user as verified (or active) and clear the OTP
-        await supabase
-            .from('users')
-            .update({ 
-                is_verified: true, 
-                otp: null 
-            })
-            .eq('id', user.id);
+        // Mark user as verified and clear the OTP fields
+        await pool.query(
+            'UPDATE users SET is_verified = TRUE, otp_code = NULL, otp_expires = NULL WHERE id = $1',
+            [user.id]
+        );
 
-        // Redirect directly to sign-in page without showing an alert popup
-        return res.redirect('/login'); // Adjust route if your sign-in page path differs
+        // Redirect directly to sign-in / home login trigger page
+        return res.redirect('/?login=open');
     } catch (err) {
         console.error('Error during OTP verification:', err);
         return res.status(500).send('Server error during verification.');
@@ -471,16 +464,13 @@ app.post('/resend-otp', async (req, res) => {
         const { email } = req.body;
         const normalizedEmail = email.trim().toLowerCase();
 
-        const { data: users, error } = await supabase
-            .from('users')
-            .select('*')
-            .eq('email', normalizedEmail);
+        const userResult = await pool.query('SELECT * FROM users WHERE email = $1', [normalizedEmail]);
+        const user = userResult.rows[0];
 
-        if (error || !users || users.length === 0) {
+        if (!user) {
             return res.status(400).json({ success: false, message: 'User not found.' });
         }
 
-        const user = users[0];
         const currentDate = new Date().toISOString().split('T')[0]; // YYYY-MM-DD format
 
         let currentCount = user.otp_count || 0;
@@ -500,25 +490,22 @@ app.post('/resend-otp', async (req, res) => {
             });
         }
 
-        // Generate a new 6-digit OTP
+        // Generate a new 6-digit OTP and expiration (10 mins)
         const newOtp = Math.floor(100000 + Math.random() * 900000).toString();
+        const newExpires = Date.now() + 10 * 60 * 1000;
 
-        // Update database with new OTP, incremented count, and updated date
-        await supabase
-            .from('users')
-            .update({
-                otp: newOtp,
-                otp_count: currentCount + 1,
-                last_otp_date: currentDate
-            })
-            .eq('id', user.id);
+        // Update database with new OTP, expiration, incremented count, and updated date
+        await pool.query(
+            `UPDATE users SET otp_code = $1, otp_expires = $2, otp_count = $3, last_otp_date = $4 WHERE id = $5`,
+            [newOtp, newExpires, currentCount + 1, currentDate, user.id]
+        );
 
         // Send Email via Nodemailer
         const mailOptions = {
             from: process.env.EMAIL_USER,
             to: normalizedEmail,
             subject: 'Your Resent Namma Nomads Verification Code',
-            text: `Your new 6-digit verification code is: ${newOtp}`
+            text: `Your new 6-digit verification code is: ${newOtp}\n\nIt expires in 10 minutes.`
         };
 
         await transporter.sendMail(mailOptions);
@@ -529,7 +516,6 @@ app.post('/resend-otp', async (req, res) => {
         return res.status(500).json({ success: false, message: 'Server error while resending OTP.' });
     }
 });
-
 
 app.get('/logout', (req, res) => {
     req.session.destroy(() => {
