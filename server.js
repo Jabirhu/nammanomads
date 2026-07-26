@@ -6,6 +6,8 @@ const multer = require('multer');
 const path = require('path');
 const crypto = require('crypto');
 const nodemailer = require('nodemailer');
+const { Resend } = require('resend');
+const resend = new Resend(process.env.RESEND_API_KEY);
 const { StandardCheckoutClient, Env } = require('@phonepe-pg/pg-sdk-node');
 require('dotenv').config();
 
@@ -408,8 +410,8 @@ app.post('/signup', async (req, res) => {
                     [name.trim(), hashedPassword, otpCode, otpExpires, cleanEmail, cleanMobile, usr.id]
                 );
 
-                await transporter.sendMail({
-                    from: process.env.EMAIL_USER,
+                await resend.emails.send({
+                    from: 'Namma Nomads <onboarding@resend.dev>',
                     to: cleanEmail,
                     subject: 'Namma Nomads - Verify Your Email',
                     text: `Hello ${name},\n\nYour 6-digit verification code is: ${otpCode}\n\nIt expires in 10 minutes.`
@@ -429,8 +431,8 @@ app.post('/signup', async (req, res) => {
             [name.trim(), cleanMobile, cleanEmail, hashedPassword, otpCode, otpExpires]
         );
 
-        await transporter.sendMail({
-            from: process.env.EMAIL_USER,
+        await resend.emails.send({
+            from: 'Namma Nomads <onboarding@resend.dev>',
             to: cleanEmail,
             subject: 'Namma Nomads - Verify Your Email',
             text: `Hello ${name},\n\nYour 6-digit verification code is: ${otpCode}\n\nIt expires in 10 minutes.`
