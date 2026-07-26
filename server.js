@@ -5,6 +5,7 @@ const session = require('express-session');
 const multer = require('multer');
 const path = require('path');
 const crypto = require('crypto');
+const nodemailer = require('nodemailer');
 const { StandardCheckoutClient, Env } = require('@phonepe-pg/pg-sdk-node');
 require('dotenv').config();
 
@@ -18,6 +19,15 @@ const clientVersion = parseInt(process.env.PHONEPE_CLIENT_VERSION || '1');
 const env = Env.SANDBOX; // Switch to Env.PRODUCTION for live deployments
 
 const phonepeClient = new StandardCheckoutClient(clientId, clientSecret, clientVersion, env);
+
+// Nodemailer Transport Configuration
+const transporter = nodemailer.createTransport({
+    service: 'gmail',
+    auth: {
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS
+    }
+});
 
 // PostgreSQL Database Connection Pool Setup
 const pool = new Pool({
@@ -42,9 +52,13 @@ const initializeDatabase = async () => {
             CREATE TABLE IF NOT EXISTS users (
                 id SERIAL PRIMARY KEY,
                 name TEXT,
+                email TEXT UNIQUE,
                 mobile TEXT UNIQUE,
                 password TEXT,
-                role TEXT DEFAULT 'player'
+                role TEXT DEFAULT 'player',
+                is_verified BOOLEAN DEFAULT FALSE,
+                otp_code TEXT,
+                otp_expires BIGINT
             )
         `);
 
@@ -82,14 +96,20 @@ const initializeDatabase = async () => {
             )
         `);
 
+        // Ensure columns exist if tables were created previously without them
+        await pool.query(`ALTER TABLE users ADD COLUMN IF NOT EXISTS email TEXT UNIQUE`);
+        await pool.query(`ALTER TABLE users ADD COLUMN IF NOT EXISTS is_verified BOOLEAN DEFAULT TRUE`);
+        await pool.query(`ALTER TABLE users ADD COLUMN IF NOT EXISTS otp_code TEXT`);
+        await pool.query(`ALTER TABLE users ADD COLUMN IF NOT EXISTS otp_expires BIGINT`);
+
         const adminMobile = '9353863794';
         const adminResult = await pool.query(`SELECT * FROM users WHERE mobile = $1`, [adminMobile]);
         
         if (adminResult.rows.length === 0) {
             const hashedPassword = await bcrypt.hash('Nico@mads987', 10);
             await pool.query(
-                `INSERT INTO users (name, mobile, password, role) VALUES ($1, $2, $3, $4)`,
-                ['Namma Nomads Admin', adminMobile, hashedPassword, 'admin']
+                `INSERT INTO users (name, mobile, email, password, role, is_verified) VALUES ($1, $2, $3, $4, $5, $6)`,
+                ['Namma Nomads Admin', adminMobile, 'admin@nammanomads.com', hashedPassword, 'admin', true]
             );
             console.log('Built-in Admin account initialized successfully.');
         }
@@ -138,7 +158,7 @@ const upload = multer({
         const allowedTypes = /jpeg|jpg|png|webp|heic/;
         const ext = path.extname(file.originalname).toLowerCase();
         const extname = allowedTypes.test(ext);
-        const mimetype = allowedTypes.test(file.mimetype) || ext === '.heic'; // Fallback for HEIC mime variations
+        const mimetype = allowedTypes.test(file.mimetype) || ext === '.heic';
 
         if (extname && mimetype) {
             return cb(null, true);
@@ -153,14 +173,12 @@ app.use((req, res, next) => {
     next();
 });
 
-// 2. Place your Multer error-handling middleware near the other global middlewares or right above your routes
+// 2. Multer error-handling middleware
 app.use((err, req, res, next) => {
     if (err instanceof multer.MulterError || err.message.includes('Only standard image files')) {
-        // If it's an AJAX/fetch request, return JSON
         if (req.xhr || req.headers.accept?.includes('json')) {
             return res.status(400).json({ success: false, message: 'Invalid photo or picture not supported!' });
         }
-        // Otherwise, send a response with a JavaScript alert / popup
         return res.send(`<script>alert('Invalid photo or picture not supported!'); window.history.back();</script>`);
     }
     next(err);
@@ -278,6 +296,7 @@ app.post('/login', async (req, res) => {
                     req.session.user = { 
                         id: user.id,
                         mobile: user.mobile, 
+                        email: user.email,
                         name: user.name, 
                         role: user.role,
                         isAdmin: true 
@@ -307,6 +326,10 @@ app.post('/login', async (req, res) => {
             return res.send("<script>alert('Invalid Mobile Number or Password'); window.location.href='/';</script>");
         }
 
+        if (user.is_verified === false) {
+            return res.send("<script>alert('Please verify your email address first using OTP.'); window.location.href='/';</script>");
+        }
+
         let match = false;
         if (user.password.startsWith('$2')) {
             match = await bcrypt.compare(password, user.password);
@@ -321,6 +344,7 @@ app.post('/login', async (req, res) => {
                 req.session.user = { 
                     id: user.id, 
                     mobile: user.mobile, 
+                    email: user.email,
                     name: user.name, 
                     role: user.role,
                     isAdmin: user.role === 'admin'
@@ -338,6 +362,174 @@ app.post('/login', async (req, res) => {
         return res.send("<script>alert('An error occurred during login.'); window.location.href='/';</script>");
     }
 });
+
+// Custom Signup with Email OTP Integration
+app.post('/signup', async (req, res) => {
+    const { name, mobile, email, password } = req.body;
+    console.log("Signup attempt for:", email, "Mobile:", mobile);
+
+    if (!name || !mobile || !email || !password) {
+        return res.send("<script>alert('All fields including email are required!'); window.location.href='/';</script>");
+    }
+
+    if (mobile === '9353863794') {
+        return res.send("<script>alert('This mobile number cannot be registered here!'); window.location.href='/';</script>");
+    }
+
+    try {
+        const hashedPassword = await bcrypt.hash(password, 10);
+        const otpCode = Math.floor(100000 + Math.random() * 900000).toString();
+        const otpExpires = Date.now() + 10 * 60 * 1000; 
+
+        const cleanEmail = email.trim().toLowerCase();
+        const cleanMobile = mobile.trim();
+
+        const existing = await pool.query(`SELECT * FROM users WHERE mobile = $1 OR email = $2`, [cleanMobile, cleanEmail]);
+        console.log("Existing user query result rows length:", existing.rows.length);
+        
+        if (existing.rows.length > 0) {
+            const usr = existing.rows[0];
+            if (usr.is_verified) {
+                return res.send("<script>alert('Mobile number or Email already registered!'); window.location.href='/';</script>");
+            } else {
+                // Explicitly update name, password, otp, AND email to ensure exact matching
+                await pool.query(
+                    `UPDATE users SET name = $1, password = $2, otp_code = $3, otp_expires = $4, email = $5 WHERE id = $6`,
+                    [name.trim(), hashedPassword, otpCode, otpExpires, cleanEmail, usr.id]
+                );
+                console.log("Updated unverified user ID:", usr.id);
+            }
+        } else {
+            const insertRes = await pool.query(
+                `INSERT INTO users (name, mobile, email, password, role, is_verified, otp_code, otp_expires) VALUES ($1, $2, $3, $4, 'player', false, $5, $6) RETURNING id`,
+                [name.trim(), cleanMobile, cleanEmail, hashedPassword, otpCode, otpExpires]
+            );
+            console.log("Inserted new user with ID:", insertRes.rows[0].id);
+        }
+
+        await transporter.sendMail({
+            from: process.env.EMAIL_USER,
+            to: cleanEmail,
+            subject: 'Namma Nomads - Verify Your Email',
+            text: `Hello ${name},\n\nYour 6-digit verification code is: ${otpCode}\n\nIt expires in 10 minutes.`
+        });
+
+        return res.redirect(`/verify-otp?email=${encodeURIComponent(cleanEmail)}`);
+    } catch (error) {
+        console.error("Signup error:", error.message);
+        return res.send("<script>alert('Error during registration or email dispatch!'); window.location.href='/';</script>");
+    }
+});
+// OTP Verification Form / Route Support
+app.get('/verify-otp', (req, res) => {
+    const email = req.query.email || '';
+    res.render('verify-otp', { email });
+});
+
+// --- 1. VERIFY OTP ROUTE (Remove alert, redirect to sign-in) ---
+app.post('/verify-otp', async (req, res) => {
+    try {
+        const { email, otp } = req.body;
+        const normalizedEmail = email.trim().toLowerCase();
+
+        // Fetch user matching email and otp
+        const { data: users, error } = await supabase
+            .from('users')
+            .select('*')
+            .eq('email', normalizedEmail);
+
+        if (error || !users || users.length === 0) {
+            return res.render('verify-otp', { errorMessage: 'Invalid or expired OTP.', email: normalizedEmail });
+        }
+
+        const user = users[0];
+
+        if (user.otp !== otp) {
+            return res.render('verify-otp', { errorMessage: 'Incorrect OTP code.', email: normalizedEmail });
+        }
+
+        // Mark user as verified (or active) and clear the OTP
+        await supabase
+            .from('users')
+            .update({ 
+                is_verified: true, 
+                otp: null 
+            })
+            .eq('id', user.id);
+
+        // Redirect directly to sign-in page without showing an alert popup
+        return res.redirect('/login'); // Adjust route if your sign-in page path differs
+    } catch (err) {
+        console.error('Error during OTP verification:', err);
+        return res.status(500).send('Server error during verification.');
+    }
+});
+
+// --- 2. RESEND OTP ROUTE (Max 4 times per day) ---
+app.post('/resend-otp', async (req, res) => {
+    try {
+        const { email } = req.body;
+        const normalizedEmail = email.trim().toLowerCase();
+
+        const { data: users, error } = await supabase
+            .from('users')
+            .select('*')
+            .eq('email', normalizedEmail);
+
+        if (error || !users || users.length === 0) {
+            return res.status(400).json({ success: false, message: 'User not found.' });
+        }
+
+        const user = users[0];
+        const currentDate = new Date().toISOString().split('T')[0]; // YYYY-MM-DD format
+
+        let currentCount = user.otp_count || 0;
+        let lastDate = user.last_otp_date;
+
+        // Reset counter if it's a new day
+        if (lastDate !== currentDate) {
+            currentCount = 0;
+            lastDate = currentDate;
+        }
+
+        // Check if daily limit (4 times) is reached
+        if (currentCount >= 4) {
+            return res.status(429).json({ 
+                success: false, 
+                message: 'Daily OTP limit reached (maximum 4 times per day). Try again tomorrow.' 
+            });
+        }
+
+        // Generate a new 6-digit OTP
+        const newOtp = Math.floor(100000 + Math.random() * 900000).toString();
+
+        // Update database with new OTP, incremented count, and updated date
+        await supabase
+            .from('users')
+            .update({
+                otp: newOtp,
+                otp_count: currentCount + 1,
+                last_otp_date: currentDate
+            })
+            .eq('id', user.id);
+
+        // Send Email via Nodemailer
+        const mailOptions = {
+            from: process.env.EMAIL_USER,
+            to: normalizedEmail,
+            subject: 'Your Resent Namma Nomads Verification Code',
+            text: `Your new 6-digit verification code is: ${newOtp}`
+        };
+
+        await transporter.sendMail(mailOptions);
+
+        return res.json({ success: true, message: 'New OTP sent successfully!' });
+    } catch (err) {
+        console.error('Error resending OTP:', err);
+        return res.status(500).json({ success: false, message: 'Server error while resending OTP.' });
+    }
+});
+
 
 app.get('/logout', (req, res) => {
     req.session.destroy(() => {
@@ -688,32 +880,6 @@ app.get('/my-bookings', async (req, res) => {
     } catch (err) {
         console.error(err);
         res.render('my-bookings', { bookings: [], user: req.session.user });
-    }
-});
-
-app.post('/signup', async (req, res) => {
-    const { name, mobile, password } = req.body;
-
-    if (!name || !mobile || !password) {
-        return res.send("<script>alert('All fields are required!'); window.location.href='/';</script>");
-    }
-
-    if (mobile === '9353863794') {
-        return res.send("<script>alert('This mobile number cannot be registered here!'); window.location.href='/';</script>");
-    }
-
-    try {
-        const hashedPassword = await bcrypt.hash(password, 10);
-
-        await pool.query(
-            `INSERT INTO users (name, mobile, password, role) VALUES ($1, $2, $3, 'player')`,
-            [name.trim(), mobile.trim(), hashedPassword]
-        );
-
-        return res.redirect('/?login=open');
-    } catch (error) {
-        console.error("Signup error:", error.message);
-        return res.send("<script>alert('Mobile number already registered or invalid input!'); window.location.href='/';</script>");
     }
 });
 
