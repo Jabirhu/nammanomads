@@ -7,7 +7,8 @@ const path = require('path');
 const crypto = require('crypto');
 const nodemailer = require('nodemailer');
 const { Resend } = require('resend');
-const resend = new Resend(process.env.RESEND_API_KEY);
+const axios = require('axios');
+const FormData = require('form-data');
 const { StandardCheckoutClient, Env } = require('@phonepe-pg/pg-sdk-node');
 require('dotenv').config();
 
@@ -21,6 +22,9 @@ const clientVersion = parseInt(process.env.PHONEPE_CLIENT_VERSION || '1');
 const env = Env.SANDBOX; // Switch to Env.PRODUCTION for live deployments
 
 const phonepeClient = new StandardCheckoutClient(clientId, clientSecret, clientVersion, env);
+
+// Resend Email Initialization
+const resend = new Resend(process.env.RESEND_API_KEY);
 
 // Nodemailer Transport Configuration
 const transporter = nodemailer.createTransport({
@@ -147,14 +151,8 @@ app.use(session({
     }
 }));
 
-// Multer Config with Strict File Type Checking & Sanitization
-const storage = multer.diskStorage({
-    destination: './public/uploads/',
-    filename: (req, file, cb) => {
-        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-        cb(null, uniqueSuffix + path.extname(file.originalname).toLowerCase());
-    }
-});
+// Multer Config with Memory Storage (Essential for Render & ImgBB API uploads)
+const storage = multer.memoryStorage();
 
 const upload = multer({
     storage: storage,
@@ -318,15 +316,13 @@ app.post('/login', async (req, res) => {
         return;
     }
 
-    // (Keep your admin check block as it is, then update standard user login below)
     if (mobile === '9353863794') {
         return res.send("<script>alert('try with different number!!'); window.location.href='/';</script>");
     }
 
     try {
-        const identifier = mobile.trim(); // The input field name from the form is 'mobile', but can contain email or phone
+        const identifier = mobile.trim();
         
-        // Check matching via either mobile OR email column
         const userResult = await pool.query(
             `SELECT * FROM users WHERE mobile = $1 OR email = $2`, 
             [identifier, identifier.toLowerCase()]
@@ -378,7 +374,6 @@ app.post('/login', async (req, res) => {
 // Custom Signup with Email OTP Integration
 app.post('/signup', async (req, res) => {
     const { name, mobile, email, password } = req.body;
-    console.log("Signup attempt for:", email, "Mobile:", mobile);
 
     if (!name || !mobile || !email || !password) {
         return res.send("<script>alert('All fields including email are required!'); window.location.href='/';</script>");
@@ -392,7 +387,6 @@ app.post('/signup', async (req, res) => {
     const cleanMobile = mobile.trim();
 
     try {
-        // 3. Check for existing duplication of email or mobile
         const existing = await pool.query(`SELECT * FROM users WHERE mobile = $1 OR email = $2`, [cleanMobile, cleanEmail]);
         
         if (existing.rows.length > 0) {
@@ -400,7 +394,6 @@ app.post('/signup', async (req, res) => {
             if (usr.is_verified) {
                 return res.send("<script>alert('Mobile number or Email already registered and verified!'); window.location.href='/';</script>");
             } else {
-                // If the user exists but hasn't verified OTP yet, update their details and send a fresh OTP
                 const hashedPassword = await bcrypt.hash(password, 10);
                 const otpCode = Math.floor(100000 + Math.random() * 900000).toString();
                 const otpExpires = Date.now() + 10 * 60 * 1000; 
@@ -421,7 +414,6 @@ app.post('/signup', async (req, res) => {
             }
         }
 
-        // 1 & 2. Generate OTP and save record as unverified (Data is NOT fully active until OTP check)
         const hashedPassword = await bcrypt.hash(password, 10);
         const otpCode = Math.floor(100000 + Math.random() * 900000).toString();
         const otpExpires = Date.now() + 10 * 60 * 1000; 
@@ -441,7 +433,7 @@ app.post('/signup', async (req, res) => {
         return res.redirect(`/verify-otp?email=${encodeURIComponent(cleanEmail)}`);
     } catch (error) {
         console.error("Signup error:", error.message);
-        if (error.code === '23505') { // Postgres unique violation error code
+        if (error.code === '23505') {
             return res.send("<script>alert('A user with this mobile number or email already exists.'); window.location.href='/';</script>");
         }
         return res.send("<script>alert('Error during registration or email dispatch!'); window.location.href='/';</script>");
@@ -454,13 +446,11 @@ app.get('/verify-otp', (req, res) => {
     res.render('verify-otp', { email });
 });
 
-// --- 1. VERIFY OTP ROUTE ---
 app.post('/verify-otp', async (req, res) => {
     try {
         const { email, otp } = req.body;
         const normalizedEmail = email.trim().toLowerCase();
 
-        // Fetch user matching email using pool
         const userResult = await pool.query('SELECT * FROM users WHERE email = $1', [normalizedEmail]);
         const user = userResult.rows[0];
 
@@ -472,13 +462,11 @@ app.post('/verify-otp', async (req, res) => {
             return res.render('verify-otp', { errorMessage: 'Incorrect or expired OTP code.', email: normalizedEmail });
         }
 
-        // Mark user as verified and clear the OTP fields
         await pool.query(
             'UPDATE users SET is_verified = TRUE, otp_code = NULL, otp_expires = NULL WHERE id = $1',
             [user.id]
         );
 
-        // Redirect directly to sign-in / home login trigger page
         return res.redirect('/?login=open');
     } catch (err) {
         console.error('Error during OTP verification:', err);
@@ -486,7 +474,6 @@ app.post('/verify-otp', async (req, res) => {
     }
 });
 
-// --- 2. RESEND OTP ROUTE (Max 4 times per day) ---
 app.post('/resend-otp', async (req, res) => {
     try {
         const { email } = req.body;
@@ -495,7 +482,6 @@ app.post('/resend-otp', async (req, res) => {
         }
 
         const normalizedEmail = email.trim().toLowerCase();
-
         const userResult = await pool.query('SELECT * FROM users WHERE email = $1', [normalizedEmail]);
         const user = userResult.rows[0];
 
@@ -503,18 +489,15 @@ app.post('/resend-otp', async (req, res) => {
             return res.status(400).json({ success: false, message: 'User not found.' });
         }
 
-        const currentDate = new Date().toISOString().split('T')[0]; // YYYY-MM-DD format
-
+        const currentDate = new Date().toISOString().split('T')[0];
         let currentCount = user.otp_count || 0;
         let lastDate = user.last_otp_date;
 
-        // Reset counter if it's a new day
         if (lastDate !== currentDate) {
             currentCount = 0;
             lastDate = currentDate;
         }
 
-        // Check if daily limit (4 times) is reached
         if (currentCount >= 4) {
             return res.status(429).json({ 
                 success: false, 
@@ -522,17 +505,14 @@ app.post('/resend-otp', async (req, res) => {
             });
         }
 
-        // Generate a new 6-digit OTP and expiration (10 mins)
         const newOtp = Math.floor(100000 + Math.random() * 900000).toString();
         const newExpires = Date.now() + 10 * 60 * 1000;
 
-        // Update database with new OTP, expiration, incremented count, and updated date
         await pool.query(
             `UPDATE users SET otp_code = $1, otp_expires = $2, otp_count = $3, last_otp_date = $4 WHERE id = $5`,
             [newOtp, newExpires, currentCount + 1, currentDate, user.id]
         );
 
-        // Send Email via Resend API
         await resend.emails.send({
             from: 'Namma Nomads <onboarding@resend.dev>',
             to: normalizedEmail,
@@ -680,18 +660,42 @@ app.post('/admin/create-game', async (req, res) => {
     res.redirect('/admin/dashboard');
 });
 
-app.post('/admin/upload-photo', upload.single('photo'), async (req, res) => {
+// --- ImgBB Permanent Photo Upload Route ---
+app.post('/upload-photo', upload.single('image'), async (req, res) => {
     if (!isAdminUser(req.session.user)) {
         return res.status(403).send('Unauthorized');
     }
-    const imageUrl = req.file ? '/uploads/' + req.file.filename : '';
-    const caption = req.body.caption || 'Community Photo';
+
     try {
-        await pool.query(`INSERT INTO gallery (image_url, caption) VALUES ($1, $2)`, [imageUrl, caption]);
-    } catch (err) {
-        console.error("Error uploading photo:", err);
+        if (!req.file) {
+            return res.status(400).send('No file uploaded.');
+        }
+
+        // Convert file buffer to base64 for ImgBB API
+        const form = new FormData();
+        form.append('image', req.file.buffer.toString('base64'));
+
+        // Upload to ImgBB
+        const imgbbResponse = await axios.post(
+            `https://api.imgbb.com/1/upload?key=${process.env.IMGBB_API_KEY}`,
+            form,
+            { headers: form.getHeaders() }
+        );
+
+        const permanentImageUrl = imgbbResponse.data.data.url;
+        const caption = req.body.caption || '';
+
+        // Save permanent URL into database gallery table
+        await pool.query(
+            'INSERT INTO gallery (image_url, caption) VALUES ($1, $2)',
+            [permanentImageUrl, caption]
+        );
+
+        res.redirect('/admin/dashboard#photos-section');
+    } catch (error) {
+        console.error('Error uploading to ImgBB:', error.response?.data || error.message);
+        res.status(500).send('Image upload failed.');
     }
-    res.redirect('/admin/dashboard#photos-section');
 });
 
 app.post('/admin/delete-game/:id', async (req, res) => {
