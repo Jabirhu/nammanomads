@@ -661,40 +661,39 @@ app.post('/admin/create-game', async (req, res) => {
 });
 
 // --- ImgBB Permanent Photo Upload Route ---
-app.post('/admin/upload-photo', upload.single('photo'), async (req, res) => {
-    if (!isAdminUser(req.session.user)) {
-        return res.status(403).send('Unauthorized');
-    }
-
+app.post('/admin/upload-photo', upload.any(), async (req, res) => {
     try {
-        if (!req.file) {
+        // req.files will contain any uploaded files regardless of the form field name
+        if (!req.files || req.files.length === 0) {
             return res.status(400).send('No file uploaded.');
         }
 
-        // Convert file buffer to base64 for ImgBB API
-        const form = new FormData();
-        form.append('image', req.file.buffer.toString('base64'));
+        const file = req.files[0]; // Take the first uploaded file
 
-        // Upload to ImgBB
-        const imgbbResponse = await axios.post(
-            `https://api.imgbb.com/1/upload?key=${process.env.IMGBB_API_KEY}`,
-            form,
-            { headers: form.getHeaders() }
-        );
+        // Convert buffer to base64 for ImgBB API
+        const base64Image = file.buffer.toString('base64');
+        
+        const formData = new URLSearchParams();
+        formData.append('key', process.env.IMGBB_API_KEY);
+        formData.append('image', base64Image);
 
-        const permanentImageUrl = imgbbResponse.data.data.url;
-        const caption = req.body.caption || '';
+        const imgbbResponse = await axios.post('https://api.imgbb.com/1/upload', formData);
+        const imageUrl = imgbbResponse.data.data.url;
 
-        // Save permanent URL into database gallery table
-        await pool.query(
-            'INSERT INTO gallery (image_url, caption) VALUES ($1, $2)',
-            [permanentImageUrl, caption]
-        );
+        // Save URL to Supabase/PostgreSQL database
+        const { error: dbError } = await supabase
+            .from('gallery')
+            .insert([{ image_url: imageUrl }]);
 
-        res.redirect('/admin/dashboard#photos-section');
-    } catch (error) {
-        console.error('Error uploading to ImgBB:', error.response?.data || error.message);
-        res.status(500).send('Image upload failed.');
+        if (dbError) {
+            console.error('Supabase Error:', dbError);
+            throw dbError;
+        }
+
+        res.redirect('/admin');
+    } catch (err) {
+        console.error('Upload Error Details:', err.response?.data || err.message);
+        res.status(500).send('Internal Server Error: ' + (err.message || 'Unknown error'));
     }
 });
 
