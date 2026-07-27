@@ -620,10 +620,13 @@ const handleGameAttendees = async (req, res) => {
         }
 
         const query = `
-            SELECT bookings.id as booking_id, users.name as userName, users.mobile as userPhone, bookings.status, bookings.withdrawal_reason, bookings.utr_number, games.price
+            SELECT bookings.id as booking_id, 
+                   COALESCE(users.name, 'Unknown User') as userName, 
+                   COALESCE(users.mobile, 'N/A') as userPhone, 
+                   bookings.status, bookings.withdrawal_reason, bookings.utr_number, games.price
             FROM bookings
-            JOIN users ON bookings.user_id = users.id
-            JOIN games ON bookings.game_id = games.id
+            LEFT JOIN users ON bookings.user_id = users.id
+            LEFT JOIN games ON bookings.game_id = games.id
             WHERE bookings.game_id = $1
             ORDER BY bookings.id ASC
         `;
