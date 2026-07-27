@@ -240,15 +240,19 @@ body.loaded #page-loader {
 .nav-item-custom {
     text-decoration: none;
     text-align: center;
+    color: #6c757d; /* Inactive color */
+    transition: color 0.2s ease;
+}
+
+.nav-item-custom:hover,
+.nav-item-custom.active {
+    color: #0083B0 !important; /* Theme active color */
 }
 
 .nav-label {
     font-size: 0.7rem;
     font-weight: 600;
-}
-
-.nav-active {
-    color: #0083B0 !important;
+    display: block;
 }
 
 /* ========================================================================= */
