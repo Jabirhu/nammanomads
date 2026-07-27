@@ -235,5 +235,22 @@ body.loaded #page-loader {
 }
 
 /* ========================================================================= */
+/* MOBILE NAVIGATION UTILITY CLASSES                                         */
+/* ========================================================================= */
+.nav-item-custom {
+    text-decoration: none;
+    text-align: center;
+}
+
+.nav-label {
+    font-size: 0.7rem;
+    font-weight: 600;
+}
+
+.nav-active {
+    color: #0083B0 !important;
+}
+
+/* ========================================================================= */
 /* END OF MAIN STYLESHEET (public/style.css)                                 */
 /* ========================================================================= */
