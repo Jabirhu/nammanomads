@@ -662,7 +662,7 @@ app.post('/admin/create-game', async (req, res) => {
 });
 
 // --- ImgBB Permanent Photo Upload Route ---
-app.post('/your-upload-route-path', upload.any(), async (req, res) => {
+app.post('/admin/upload-photo', upload.any(), async (req, res) => {
     try {
         if (!req.files || req.files.length === 0) {
             return res.status(400).send('No file uploaded.');
@@ -670,21 +670,20 @@ app.post('/your-upload-route-path', upload.any(), async (req, res) => {
 
         const file = req.files[0]; 
         const base64Image = file.buffer.toString('base64');
-        
+
         const formData = new URLSearchParams();
         formData.append('key', process.env.IMGBB_API_KEY);
         formData.append('image', base64Image);
 
-        // 1. Upload to ImgBB
         const imgbbResponse = await axios.post('https://api.imgbb.com/1/upload', formData);
         const imageUrl = imgbbResponse.data.data.url;
 
-        // 2. Save using PostgreSQL Pool (NOT supabase)
+        // Save using your PostgreSQL pool connection
         await pool.query('INSERT INTO gallery (image_url) VALUES ($1)', [imageUrl]);
 
-        res.redirect('/admin'); // or wherever you want to redirect
+        res.redirect('/admin');
     } catch (err) {
-        console.error('Upload Error Details:', err.message);
+        console.error('Upload Error Details:', err.response?.data || err.message);
         res.status(500).send('Internal Server Error: ' + err.message);
     }
 });
