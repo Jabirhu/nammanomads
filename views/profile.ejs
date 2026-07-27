@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Profile - Namma Nomads</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/style.css">
+</head>
+<body class="bg-light">
+
+    <div class="container py-5 mb-5">
+        <h2 class="fw-bold mb-4" style="color: var(--primary);">My Profile</h2>
+
+        <!-- User Information Card -->
+        <div class="card shadow-sm border-0 mb-4 rounded-4">
+            <div class="card-body p-4">
+                <h5 class="card-title fw-bold mb-3">Account Details</h5>
+                <p class="mb-1 text-muted">Name</p>
+                <h6 class="fw-semibold"><%= user.name %></h6>
+                <p class="mb-1 text-muted mt-3">Email / Phone</p>
+                <h6 class="fw-semibold"><%= user.email || user.phone %></h6>
+            </div>
+        </div>
+
+        <!-- Security / Change Password via OTP Section -->
+        <div class="card shadow-sm border-0 mb-4 rounded-4">
+            <div class="card-body p-4">
+                <h5 class="card-title fw-bold mb-3">Security Settings</h5>
+                <form id="otp-password-form">
+                    <div class="mb-3">
+                        <label class="form-label text-muted fs-7">Change Password via OTP</label>
+                        <button type="button" id="send-otp-btn" class="btn btn-outline-primary btn-sm w-100">Send OTP to Registered Contact</button>
+                    </div>
+                    <div id="otp-section" class="d-none">
+                        <div class="mb-3">
+                            <input type="text" class="form-control" id="otp-input" placeholder="Enter 6-digit OTP" maxlength="6">
+                        </div>
+                        <div class="mb-3 password-wrapper">
+                            <input type="password" class="form-control" id="new-password" placeholder="Enter New Password">
+                        </div>
+                        <button type="submit" class="btn btn-golden-metal w-100">Update Password</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Quick Links / Logout -->
+        <div class="d-grid gap-2">
+            <a href="/auth/logout" class="btn btn-danger rounded-pill">Log Out</a>
+        </div>
+    </div>
+
+    <!-- Include Mobile Bottom Navigation Bar -->
+    <%- include('partials/bottom-nav', { path: '/profile' }) %>
+
+    <script>
+        // Simple frontend script toggle for OTP workflow
+        document.getElementById('send-otp-btn').addEventListener('click', function() {
+            alert('OTP sent successfully to your registered contact!');
+            document.getElementById('otp-section').classList.remove('d-none');
+            this.textContent = 'Resend OTP';
+        });
+    </script>
+</body>
+</html>
