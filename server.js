@@ -1,3 +1,4 @@
+require('dotenv').config();
 const express = require('express');
 const { Pool } = require('pg');
 const bcrypt = require('bcryptjs');
@@ -13,7 +14,7 @@ const { createClient } = require('@supabase/supabase-js');
 const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_ANON_KEY);
 // OR maybe you named it client, db, or supabaseClient
 const { StandardCheckoutClient, Env } = require('@phonepe-pg/pg-sdk-node');
-require('dotenv').config();
+
 
 const app = express();
 const PORT = process.env.PORT || 3000;
