@@ -3,48 +3,56 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Namma Nomads - Verify OTP</title>
+    <title>Verify Your Email - Namma Nomads</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Custom Main Stylesheet -->
     <link rel="stylesheet" href="/style.css">
 </head>
-<body class="theme-background">
-    <div class="card-container">
-        <h2>Verify Your Email</h2>
-        <p>We've sent a 6-digit verification code to your email.</p>
+<body class="otp-page-body">
 
-        <% if (locals.errorMessage) { %>
-            <div class="alert alert-danger" style="color: var(--danger, #EF4444); margin-bottom: 15px; font-size: 0.9rem;">
-                <%= errorMessage %>
+    <div class="container d-flex align-items-center justify-content-center min-vh-100">
+        <div class="row justify-content-center w-100">
+            <div class="col-11 col-sm-8 col-md-6 col-lg-5">
+                <div class="card shadow-sm border-0 p-3 p-md-4">
+                    <div class="card-body">
+                        <h2 class="fw-bold mb-2 text-dark">Verify Your Email</h2>
+                        <p class="text-muted mb-4">We've sent a 6-digit verification code to your email.</p>
+
+                        <% if (typeof errorMessage !== 'undefined' && errorMessage) { %>
+                            <div class="alert alert-danger py-2" role="alert">
+                                <%= errorMessage %>
+                            </div>
+                        <% } %>
+
+                        <form action="/verify-otp" method="POST">
+                            <input type="hidden" name="email" value="<%= email %>">
+                            
+                            <div class="mb-3">
+                                <label class="form-label text-secondary fw-semibold">Email Address</label>
+                                <input type="email" class="form-control" value="<%= email %>" disabled>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="otp" class="form-label text-secondary fw-semibold">6-Digit OTP Code</label>
+                                <input type="text" class="form-control" id="otp" name="otp" placeholder="Enter OTP" maxlength="6" required autocomplete="one-time-code">
+                            </div>
+
+                            <button type="submit" class="btn btn-primary w-100 py-2 fw-semibold">Verify OTP</button>
+                        </form>
+
+                        <div class="text-center mt-3">
+                            <button id="resendBtn" class="btn btn-link text-decoration-none p-0">Resend OTP</button>
+                        </div>
+                    </div>
+                </div>
             </div>
-        <% } %>
-
-        <form action="/verify-otp" method="POST">
-            <div class="form-group">
-                <label>Email Address</label>
-                <input type="email" name="email" value="<%= email %>" readonly class="form-control">
-            </div>
-
-            <div class="form-group">
-                <label>6-Digit OTP Code</label>
-                <input type="text" name="otp" placeholder="Enter OTP" required maxlength="6" class="form-control" autocomplete="one-time-code" autofocus>
-            </div>
-
-            <button type="submit" class="btn-primary">Verify OTP</button>
-        </form>
-
-        <div class="resend-section" style="margin-top: 15px; text-align: center;">
-            <button id="resendBtn" class="btn-text" type="button">Resend OTP</button>
-            <span id="resendStatus" style="display: block; margin-top: 5px; font-size: 0.85rem;"></span>
         </div>
     </div>
 
     <script>
         document.getElementById('resendBtn').addEventListener('click', async () => {
             const email = "<%= email %>";
-            const statusSpan = document.getElementById('resendStatus');
-            statusSpan.className = "text-warning";
-            statusSpan.style.color = "var(--warning, #F59E0B)";
-            statusSpan.innerText = "Sending...";
-
             try {
                 const response = await fetch('/resend-otp', {
                     method: 'POST',
@@ -52,19 +60,9 @@
                     body: JSON.stringify({ email })
                 });
                 const data = await response.json();
-                if (data.success) {
-                    statusSpan.className = "text-success";
-                    statusSpan.style.color = "var(--success, #10B981)";
-                    statusSpan.innerText = "OTP resent successfully!";
-                } else {
-                    statusSpan.className = "text-error";
-                    statusSpan.style.color = "var(--danger, #EF4444)";
-                    statusSpan.innerText = data.message || "Error resending OTP.";
-                }
+                alert(data.message);
             } catch (err) {
-                statusSpan.className = "text-error";
-                statusSpan.style.color = "var(--danger, #EF4444)";
-                statusSpan.innerText = "Server error while resending OTP.";
+                alert('Failed to resend OTP. Please try again.');
             }
         });
     </script>
