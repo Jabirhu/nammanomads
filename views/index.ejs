@@ -15,6 +15,7 @@
     <link rel="stylesheet" href="/style.css">
     <!-- Browser Tab Icon -->
     <link rel="icon" type="image/png" href="/images/browser_icon.png">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
 
@@ -367,20 +368,28 @@
     <nav class="navbar fixed-bottom bg-white border-top shadow-lg d-md-none py-2 px-3 rounded-top-4">
         <div class="container-fluid d-flex justify-content-around align-items-center">
             <a href="/" class="text-decoration-none text-center text-primary">
-                <i class="fas fa-home fa-lg d-block mb-1"></i>
-                <span style="font-size: 0.75rem; font-weight: 500;">Home</span>
+                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="currentColor" class="bi bi-house-fill mb-1 d-block mx-auto" viewBox="0 0 16 16">
+                    <path d="M8.707 1.5a1 1 0 0 0-1.414 0L.646 8.146a.5.5 0 0 0 .708.708L2 8.207V135A1.5 1.5 0 0 0 3.5 14.5h9a1.5 1.5 0 0 0 1.5-1.5V8.207l.646.647a.5.5 0 0 0 .708-.708L13 5.793V2.5a.5.5 0 0 0-.5-.5h-1a.5.5 0 0 0-.5.5v1.293z"/>
+                </svg>
+                <span style="font-size: 0.7rem; font-weight: 600;">Home</span>
             </a>
             <a href="/#book-section" class="text-decoration-none text-center text-muted">
-                <i class="fas fa-calendar-alt fa-lg d-block mb-1"></i>
-                <span style="font-size: 0.75rem; font-weight: 500;">Bookings</span>
+                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="currentColor" class="bi bi-calendar-check-fill mb-1 d-block mx-auto" viewBox="0 0 16 16">
+                    <path d="M4 .5a.5.5 0 0 0-1 0V1H2a2 2 0 0 0-2 2v1h16V3a2 2 0 0 0-2-2h-1V.5a.5.5 0 0 0-1 0V1H4zM16 14V5H0v9a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2m-5.146-5.146-3 3a.5.5 0 0 1-.708 0l-1.5-1.5a.5.5 0 0 1 .708-.708L7.5 10.793l2.646-2.647a.5.5 0 0 1 .708.708"/>
+                </svg>
+                <span style="font-size: 0.7rem; font-weight: 600;">Bookings</span>
             </a>
             <a href="/my-bookings" class="text-decoration-none text-center text-muted">
-                <i class="fas fa-futbol fa-lg d-block mb-1"></i>
-                <span style="font-size: 0.75rem; font-weight: 500;">My Matches</span>
+                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="currentColor" class="bi bi-trophy-fill mb-1 d-block mx-auto" viewBox="0 0 16 16">
+                    <path d="M2.5.5A.5.5 0 0 1 3 0h10a.5.5 0 0 1 .5.5c0 .538-.012 1.05-.034 1.536a3 3 0 0 1-1.133 5.89c-.79 1.865-1.878 2.777-2.833 3.011v2.173l1.425.356c.194.048.37.135.533.25V13a1 1 0 0 1-1 1h-4a1 1 0 0 1-1-1v-.387c.163-.115.339-.202.533-.25l1.425-.356V11.09c-.955-.234-2.043-1.146-2.833-3.012a3 3 0 0 1-1.132-5.89A33 33 0 0 1 2.5.5m.099 2.54a2 2 0 0 0 .72 3.935c-.333-1.05-.5-2.05-.535-2.994a2 2 0 0 0-.185-.941m9.402 3.935a2 2 0 0 0 .72-3.935c-.035.944-.202 1.944-.535 2.994a2 2 0 0 0-.185.941z"/>
+                </svg>
+                <span style="font-size: 0.7rem; font-weight: 600;">My Matches</span>
             </a>
             <a href="#" class="text-decoration-none text-center text-muted" data-bs-toggle="modal" data-bs-target="#profileModal">
-                <i class="fas fa-user fa-lg d-block mb-1"></i>
-                <span style="font-size: 0.75rem; font-weight: 500;">Profile</span>
+                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="currentColor" class="bi bi-person-fill mb-1 d-block mx-auto" viewBox="0 0 16 16">
+                    <path d="M3 14s-1 0-1-1 1-4 6-4 6 3 6 4-1 1-1 1zm5-6a3 3 0 1 0 0-6 3 3 0 0 0 0 6"/>
+                </svg>
+                <span style="font-size: 0.7rem; font-weight: 600;">Profile</span>
             </a>
         </div>
     </nav>
