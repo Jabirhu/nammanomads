@@ -517,11 +517,17 @@ app.post('/resend-otp', async (req, res) => {
             [newOtp, newExpires, currentCount + 1, currentDate, user.id]
         );
 
+        // Updated to use your published Resend template and variables
         await resend.emails.send({
             from: 'Namma Nomads <onboarding@resend.dev>',
             to: normalizedEmail,
             subject: 'Your Resent Namma Nomads Verification Code',
-            text: `Your new 6-digit verification code is: ${newOtp}\n\nIt expires in 10 minutes.`
+            template: {
+                id: 'email-verification', // Replace with your actual template ID/alias from Resend
+                variables: {
+                    otp: newOtp // Maps to {{{otp}}} in your template HTML
+                }
+            }
         });
 
         return res.json({ success: true, message: 'New OTP sent successfully!' });
