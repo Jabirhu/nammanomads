@@ -761,7 +761,7 @@ app.post('/api/phonepe/create-order', async (req, res) => {
 
         const merchantTransactionId = "NM_" + Date.now();
         const amount = game.price;
-        const upiId = process.env.UPI_ID || "9353863794@ybl"; 
+        const upiId = process.env.UPI_ID || "8310426460@ybl"; 
         const payeeName = "Namma Nomads";
 
         const upiLink = `upi://pay?pa=${upiId}&pn=${encodeURIComponent(payeeName)}&am=${amount}&cu=INR&tr=${merchantTransactionId}`;
