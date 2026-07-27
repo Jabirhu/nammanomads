@@ -668,7 +668,6 @@ app.post('/admin/create-game', async (req, res) => {
 });
 
 // --- ImgBB Permanent Photo Upload Route ---
-// --- ImgBB Permanent Photo Upload Route ---
 app.post('/admin/upload-photo', upload.any(), async (req, res) => {
     try {
         if (!req.files || req.files.length === 0) {
@@ -880,7 +879,7 @@ app.get('/booking-failed', (req, res) => {
     res.send("<script>alert('Payment failed or cancelled.'); window.location.href='/';</script>");
 });
 
-// --- Place your middleware up here with other middlewares ---
+// --- Middleware ---
 function isAuthenticated(req, res, next) {
     if (req.session && req.session.user) {
         return next();
@@ -888,7 +887,8 @@ function isAuthenticated(req, res, next) {
     // If not logged in, redirect to login page (or home with login modal trigger)
     res.redirect('/login'); 
 }
-// --- Place your route down here with your other app.get routes ---
+
+// --- Protected Routes ---
 app.get('/my-bookings', isAuthenticated, async (req, res) => {
     try {
         const userId = req.session.user.id;

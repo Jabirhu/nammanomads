@@ -1,4 +1,3 @@
 .env
 .jetro/
-.env
-.jetro/
+node_modules/

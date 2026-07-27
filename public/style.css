@@ -1,5 +1,5 @@
 /* ========================================================================= */
-/* START OF MAIN STYLESHEET (public/style.css)                               */
+/* START OF MAIN STYLESHEET (public/style.css)                             */
 /* ========================================================================= */
 /* Add padding to body on mobile to prevent bottom bar overlap */
 @media (max-width: 768px) {
@@ -177,7 +177,7 @@ body.loaded #page-loader {
 }
 
 /* ========================================================================= */
-/* ADMIN DASHBOARD SPECIFIC STYLES                                           */
+/* ADMIN DASHBOARD SPECIFIC STYLES                                         */
 /* ========================================================================= */
 
 /* Hover effects and border styling for top interactive navigation cards */
@@ -253,6 +253,33 @@ body.loaded #page-loader {
     font-size: 0.7rem;
     font-weight: 600;
     display: block;
+}
+
+/* ========================================================================= */
+/* OTP PAGE SPECIFIC STYLES                                                  */
+/* ========================================================================= */
+body.otp-body {
+    background-color: #121212;
+    color: #ffffff;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.card-custom {
+    background-color: #1e1e1e;
+    border: 1px solid #2d2d2d;
+    border-radius: 12px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+}
+
+.form-control:focus {
+    background-color: #2d2d2d;
+    color: #fff;
+    border-color: #198754;
+    box-shadow: none;
 }
 
 /* ========================================================================= */

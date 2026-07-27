@@ -11,6 +11,12 @@
         <h2>Verify Your Email</h2>
         <p>We've sent a 6-digit verification code to your email.</p>
 
+        <% if (locals.errorMessage) { %>
+            <div class="alert alert-danger" style="color: var(--danger, #EF4444); margin-bottom: 15px; font-size: 0.9rem;">
+                <%= errorMessage %>
+            </div>
+        <% } %>
+
         <form action="/verify-otp" method="POST">
             <div class="form-group">
                 <label>Email Address</label>
@@ -19,15 +25,15 @@
 
             <div class="form-group">
                 <label>6-Digit OTP Code</label>
-                <input type="text" name="otp" placeholder="Enter OTP" required maxlength="6" class="form-control">
+                <input type="text" name="otp" placeholder="Enter OTP" required maxlength="6" class="form-control" autocomplete="one-time-code" autofocus>
             </div>
 
             <button type="submit" class="btn-primary">Verify OTP</button>
         </form>
 
-        <div class="resend-section">
-            <button id="resendBtn" class="btn-text">Resend OTP</button>
-            <span id="resendStatus"></span>
+        <div class="resend-section" style="margin-top: 15px; text-align: center;">
+            <button id="resendBtn" class="btn-text" type="button">Resend OTP</button>
+            <span id="resendStatus" style="display: block; margin-top: 5px; font-size: 0.85rem;"></span>
         </div>
     </div>
 
@@ -36,6 +42,7 @@
             const email = "<%= email %>";
             const statusSpan = document.getElementById('resendStatus');
             statusSpan.className = "text-warning";
+            statusSpan.style.color = "var(--warning, #F59E0B)";
             statusSpan.innerText = "Sending...";
 
             try {
@@ -47,13 +54,16 @@
                 const data = await response.json();
                 if (data.success) {
                     statusSpan.className = "text-success";
+                    statusSpan.style.color = "var(--success, #10B981)";
                     statusSpan.innerText = "OTP resent successfully!";
                 } else {
                     statusSpan.className = "text-error";
+                    statusSpan.style.color = "var(--danger, #EF4444)";
                     statusSpan.innerText = data.message || "Error resending OTP.";
                 }
             } catch (err) {
                 statusSpan.className = "text-error";
+                statusSpan.style.color = "var(--danger, #EF4444)";
                 statusSpan.innerText = "Server error while resending OTP.";
             }
         });
