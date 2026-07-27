@@ -892,10 +892,19 @@ function isAuthenticated(req, res, next) {
 app.get('/my-bookings', isAuthenticated, async (req, res) => {
     try {
         const userId = req.session.user.id;
-        const bookingsResult = await pool.query(
-            "SELECT * FROM bookings WHERE user_id = $1 ORDER BY created_at DESC", 
-            [userId]
-        );
+        const query = `
+            SELECT bookings.*, 
+                   games.title, 
+                   games.date, 
+                   games.time, 
+                   games.location, 
+                   games.price
+            FROM bookings
+            LEFT JOIN games ON bookings.game_id = games.id
+            WHERE bookings.user_id = $1
+            ORDER BY bookings.created_at DESC
+        `;
+        const bookingsResult = await pool.query(query, [userId]);
         
         res.render('my-bookings', { 
             bookings: bookingsResult.rows, 
