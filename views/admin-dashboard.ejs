@@ -31,7 +31,7 @@
         <div class="row g-4 mb-5">
             <!-- 1. Create Event Card -->
             <div class="col-md-4">
-                <div class="card admin-nav-card p-4 h-100 d-flex flex-column justify-content-between" id="create-card-trigger" onclick="switchSection('create-section', this)">
+                <div class="card admin-nav-card p-4 h-100 d-flex flex-column justify-content-between" id="create-card-trigger" onclick="switchSection('create-section', this)" style="cursor: pointer;">
                     <div>
                         <div class="d-flex align-items-center mb-3">
                             <div class="p-3 rounded-3 me-3" style="background-color: var(--primary-light); color: var(--primary);">
@@ -44,7 +44,7 @@
                         </div>
                         <p class="text-muted small mb-4">Add new football matches, configure dates, times, turf locations, and slot pricing.</p>
                     </div>
-                    <button class="btn btn-primary fw-bold py-2 w-100 pointer-events-none">
+                    <button class="btn btn-primary fw-bold py-2 w-100 pointer-events-none" type="button">
                         <i class="fas fa-plus me-1"></i> Add New Event
                     </button>
                 </div>
@@ -52,7 +52,7 @@
 
             <!-- 2. Registered Players Card -->
             <div class="col-md-4">
-                <div class="card admin-nav-card p-4 h-100 d-flex flex-column justify-content-between" id="registrations-card-trigger" onclick="switchSection('registrations-section', this)">
+                <div class="card admin-nav-card p-4 h-100 d-flex flex-column justify-content-between" id="registrations-card-trigger" onclick="switchSection('registrations-section', this)" style="cursor: pointer;">
                     <div>
                         <div class="d-flex align-items-center mb-3">
                             <div class="bg-dark bg-opacity-10 p-3 rounded-3 text-dark me-3">
@@ -65,7 +65,7 @@
                         </div>
                         <p class="text-muted small mb-4">Inspect match-wise attendee lists, check booking statuses, and manage participants.</p>
                     </div>
-                    <button class="btn btn-dark fw-bold py-2 w-100 pointer-events-none">
+                    <button class="btn btn-dark fw-bold py-2 w-100 pointer-events-none" type="button">
                         <i class="fas fa-list me-1"></i> View Registrations
                     </button>
                 </div>
@@ -73,7 +73,7 @@
 
             <!-- 3. Add & Manage Photos Card -->
             <div class="col-md-4">
-                <div class="card admin-nav-card p-4 h-100 d-flex flex-column justify-content-between" id="photo-card-trigger" onclick="switchSection('photos-section', this)">
+                <div class="card admin-nav-card p-4 h-100 d-flex flex-column justify-content-between" id="photo-card-trigger" onclick="switchSection('photos-section', this)" style="cursor: pointer;">
                     <div>
                         <div class="d-flex align-items-center mb-3">
                             <div class="p-3 rounded-3 me-3" style="background-color: rgba(22, 163, 74, 0.1); color: var(--success);">
@@ -86,17 +86,17 @@
                         </div>
                         <p class="text-muted small mb-4">Upload match highlights, team photos, and gallery memories or select photos to remove.</p>
                     </div>
-                    <button class="btn fw-bold py-2 w-100 pointer-events-none text-white" style="background-color: var(--success);">
+                    <button class="btn fw-bold py-2 w-100 pointer-events-none text-white" style="background-color: var(--success);" type="button">
                         <i class="fas fa-camera me-1"></i> Gallery & Removal
                     </button>
                 </div>
             </div>
         </div>
 
-        <!-- Dynamic Lower Content Container -->
+        <!-- Dynamic Lower Content Container (Hidden by default using 'd-none') -->
 
         <!-- 1. Create Event Section -->
-        <div id="create-section" class="dynamic-content-section">
+        <div id="create-section" class="dynamic-content-section d-none">
             <div class="card shadow-sm border-0 rounded-4 p-4 mb-5 bg-white position-relative">
                 <button type="button" class="btn-close position-absolute top-0 end-0 m-4" aria-label="Close" onclick="closeSection('create-section')"></button>
                 <h3 class="fw-bold mb-4 text-dark"><i class="fas fa-plus-circle me-2" style="color: var(--primary);"></i>Create New Match Event</h3>
@@ -133,7 +133,7 @@
         </div>
 
         <!-- 2. Registered Players / Events Management Section -->
-        <div id="registrations-section" class="dynamic-content-section">
+        <div id="registrations-section" class="dynamic-content-section d-none">
             <div class="card shadow-sm border-0 rounded-4 p-4 bg-white position-relative">
                 <button type="button" class="btn-close position-absolute top-0 end-0 m-4" aria-label="Close" onclick="closeSection('registrations-section')"></button>
                 <h3 class="fw-bold mb-4 text-dark"><i class="fas fa-list text-secondary me-2"></i>Active & Past Events</h3>
@@ -191,7 +191,7 @@
         </div>
 
         <!-- 3. Add & Manage Photos Section -->
-        <div id="photos-section" class="dynamic-content-section">
+        <div id="photos-section" class="dynamic-content-section d-none">
             <div class="row g-4">
                 <!-- Upload Card -->
                 <div class="col-md-5">
@@ -290,8 +290,8 @@
                 
                 if (tdTitle || tdDate || tdLocation) {
                     let textValue = (tdTitle.textContent || tdTitle.innerText) + ' ' + 
-                                    (tdDate.textContent || tdDate.innerText) + ' ' + 
-                                    (tdLocation.textContent || tdLocation.innerText);
+                                (tdDate.textContent || tdDate.innerText) + ' ' + 
+                                (tdLocation.textContent || tdLocation.innerText);
                     
                     if (textValue.toLowerCase().indexOf(filter) > -1) {
                         trs[i].style.display = "";
@@ -304,13 +304,17 @@
         
         function switchSection(sectionId, cardElement) {
             const sections = document.querySelectorAll('.dynamic-content-section');
-            sections.forEach(sec => sec.classList.remove('active'));
+            sections.forEach(sec => {
+                sec.classList.remove('active');
+                sec.classList.add('d-none');
+            });
 
             const cards = document.querySelectorAll('.admin-nav-card');
             cards.forEach(c => c.style.borderColor = 'var(--border-color)');
 
             const target = document.getElementById(sectionId);
             if (target) {
+                target.classList.remove('d-none');
                 target.classList.add('active');
                 if (cardElement) {
                     cardElement.style.borderColor = 'var(--primary)';
@@ -324,6 +328,7 @@
             const target = document.getElementById(sectionId);
             if (target) {
                 target.classList.remove('active');
+                target.classList.add('d-none');
             }
             const cards = document.querySelectorAll('.admin-nav-card');
             cards.forEach(c => c.style.borderColor = 'var(--border-color)');
@@ -336,6 +341,7 @@
             if (savedSection) {
                 const target = document.getElementById(savedSection);
                 if (target) {
+                    target.classList.remove('d-none');
                     target.classList.add('active');
                     let cardId = '';
                     if (savedSection === 'create-section') cardId = 'create-card-trigger';

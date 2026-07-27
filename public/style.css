@@ -172,5 +172,63 @@ body.loaded #page-loader {
 }
 
 /* ========================================================================= */
+/* ADMIN DASHBOARD SPECIFIC STYLES                                           */
+/* ========================================================================= */
+
+/* Hover effects and border styling for top interactive navigation cards */
+.admin-nav-card {
+    transition: all 0.3s ease-in-out;
+    border: 2px solid var(--border-color, #dee2e6);
+    background-color: #ffffff;
+}
+
+.admin-nav-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.08);
+    border-color: var(--primary, #0083B0);
+}
+
+/* Disables inner button interference so the whole card wrapper handles clicks smoothly */
+.pointer-events-none {
+    pointer-events: none;
+}
+
+/* Dynamic Content Sections Transition */
+.dynamic-content-section {
+    transition: all 0.4s ease-in-out;
+    opacity: 0;
+    transform: translateY(15px);
+}
+
+.dynamic-content-section.active {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* Custom small font utility for tight layouts */
+.fs-7 {
+    font-size: 0.8rem;
+}
+
+/* Scrollable container for managing gallery photos efficiently */
+.gallery-manage-list::-webkit-scrollbar {
+    width: 6px;
+}
+
+.gallery-manage-list::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 4px;
+}
+
+.gallery-manage-list::-webkit-scrollbar-thumb {
+    background: #ccc;
+    border-radius: 4px;
+}
+
+.gallery-manage-list::-webkit-scrollbar-thumb:hover {
+    background: #aaa;
+}
+
+/* ========================================================================= */
 /* END OF MAIN STYLESHEET (public/style.css)                                 */
 /* ========================================================================= */
