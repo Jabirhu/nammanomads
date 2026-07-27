@@ -115,9 +115,9 @@
                             <i class="fas fa-user-slash me-2"></i>Withdrawn Users [<%= withdrawnList.length %>]
                         </h5>
                         <ul class="list-group list-group-flush bg-transparent">
-                            <% withdrawnList.forEach((wb) => { %>
+                            <% withdrawnList.forEach((dwb) => { %>
                                 <li class="list-group-item bg-white border-0 rounded-3 mb-2 shadow-sm d-flex justify-content-between align-items-center py-3 px-3">
-                                    <span><strong><%= wb.userName %></strong> (<%= wb.userPhone %>) - Reason: <em class="text-muted"><%= wb.withdrawal_reason %></em></span>
+                                    <span><strong><%= dwb.userName %></strong> (<%= dwb.userPhone %>) - Reason: <em class="text-muted"><%= dwb.withdrawal_reason %></em></span>
                                     <span class="badge bg-secondary bg-opacity-10 text-secondary px-2 py-1">Withdrawn</span>
                                 </li>
                             <% }) %>
