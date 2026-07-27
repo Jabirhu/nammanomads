@@ -662,6 +662,7 @@ app.post('/admin/create-game', async (req, res) => {
 });
 
 // --- ImgBB Permanent Photo Upload Route ---
+// --- ImgBB Permanent Photo Upload Route ---
 app.post('/admin/upload-photo', upload.any(), async (req, res) => {
     try {
         if (!req.files || req.files.length === 0) {
@@ -669,6 +670,7 @@ app.post('/admin/upload-photo', upload.any(), async (req, res) => {
         }
 
         const file = req.files[0]; 
+        const caption = req.body.caption || ''; // Grab the caption from the form
         const base64Image = file.buffer.toString('base64');
 
         const formData = new URLSearchParams();
@@ -678,10 +680,10 @@ app.post('/admin/upload-photo', upload.any(), async (req, res) => {
         const imgbbResponse = await axios.post('https://api.imgbb.com/1/upload', formData);
         const imageUrl = imgbbResponse.data.data.url;
 
-        // Save using your PostgreSQL pool connection
-        await pool.query('INSERT INTO gallery (image_url) VALUES ($1)', [imageUrl]);
+        // Save image URL and caption using your PostgreSQL pool connection
+        await pool.query('INSERT INTO gallery (image_url, caption) VALUES ($1, $2)', [imageUrl, caption]);
 
-        res.redirect('/admin');
+        res.redirect('/admin/dashboard#photos-section');
     } catch (err) {
         console.error('Upload Error Details:', err.response?.data || err.message);
         res.status(500).send('Internal Server Error: ' + err.message);
