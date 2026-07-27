@@ -9,6 +9,9 @@ const nodemailer = require('nodemailer');
 const { Resend } = require('resend');
 const axios = require('axios');
 const FormData = require('form-data');
+const { createClient } = require('@supabase/supabase-js');
+const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_ANON_KEY);
+// OR maybe you named it client, db, or supabaseClient
 const { StandardCheckoutClient, Env } = require('@phonepe-pg/pg-sdk-node');
 require('dotenv').config();
 
@@ -663,12 +666,11 @@ app.post('/admin/create-game', async (req, res) => {
 // --- ImgBB Permanent Photo Upload Route ---
 app.post('/admin/upload-photo', upload.any(), async (req, res) => {
     try {
-        // req.files will contain any uploaded files regardless of the form field name
         if (!req.files || req.files.length === 0) {
             return res.status(400).send('No file uploaded.');
         }
 
-        const file = req.files[0]; // Take the first uploaded file
+        const file = req.files[0]; 
 
         // Convert buffer to base64 for ImgBB API
         const base64Image = file.buffer.toString('base64');
