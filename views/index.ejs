@@ -478,15 +478,15 @@
                 authModal.show();
             }
         }
-
+        
         /* -----------------------------------------------------
             LOGIN INTERCEPTOR FOR BOOKINGS & ACTION BUTTONS
         ----------------------------------------------------- */
         const loginButtons = document.querySelectorAll('.login-trigger-btn, a[href="/my-bookings"], a[href="/bookings"], #my-bookings-link');
         loginButtons.forEach(button => {
             button.addEventListener('click', event => {
-                // Check if user is logged in via a data attribute, global window variable, or a template evaluation
-                const isLoggedIn = button.getAttribute('data-logged-in') === 'true' || window.isUserLoggedIn === true || (typeof user !== 'undefined' && user !== null);
+                // Evaluate login state safely using template injection directly from EJS
+                const isLoggedIn = <%= (typeof user !== 'undefined' && user !== null) ? 'true' : 'false' %> === true || window.isUserLoggedIn === true;
                 
                 if (!isLoggedIn) {
                     event.preventDefault();
@@ -499,9 +499,11 @@
                         window.location.href = button.getAttribute('href') || '/login';
                     }
                 }
+                // If isLoggedIn is true, we do NOT call event.preventDefault(), 
+                // so the browser naturally navigates straight to /my-bookings!
             });
         });
-
+        
         /* -----------------------------------------------------
             PASSWORD VISIBILITY TOGGLE
         ----------------------------------------------------- */
