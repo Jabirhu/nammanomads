@@ -202,7 +202,8 @@ app.get('/', async (req, res) => {
         const gallery = galleryResult.rows || [];
 
         if (!games || games.length === 0) {
-            return res.render('index', { games: [], gallery, userBookings: {} });
+            // 1. Update first render call
+            return res.render('index', { games: [], gallery, userBookings: {}, path: req.path, user: req.session.user || null });
         }
 
         const now = new Date();
@@ -245,7 +246,8 @@ app.get('/', async (req, res) => {
         });
 
         if (activeGames.length === 0) {
-            return res.render('index', { games: [], gallery, userBookings: {} });
+            // 2. Update second render call
+            return res.render('index', { games: [], gallery, userBookings: {}, path: req.path, user: req.session.user || null });
         }
 
         let userBookings = {};
@@ -263,7 +265,8 @@ app.get('/', async (req, res) => {
             game.registeredCount = (countResult.rows && countResult.rows[0]) ? parseInt(countResult.rows[0].count, 10) : 0;
         }
 
-        res.render('index', { games: activeGames, gallery, userBookings });
+        // 3. Update third (main success) render call
+        res.render('index', { games: activeGames, gallery, userBookings, path: req.path, user: req.session.user || null });
     } catch (err) {
         console.error("Database error on home route:", err.message);
         return res.status(500).send("Database error");
