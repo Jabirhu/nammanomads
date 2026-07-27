@@ -10,9 +10,6 @@ const nodemailer = require('nodemailer');
 const { Resend } = require('resend');
 const axios = require('axios');
 const FormData = require('form-data');
-const { createClient } = require('@supabase/supabase-js');
-const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_ANON_KEY);
-// OR maybe you named it client, db, or supabaseClient
 const { StandardCheckoutClient, Env } = require('@phonepe-pg/pg-sdk-node');
 
 
@@ -683,15 +680,7 @@ app.post('/admin/upload-photo', upload.any(), async (req, res) => {
         const imgbbResponse = await axios.post('https://api.imgbb.com/1/upload', formData);
         const imageUrl = imgbbResponse.data.data.url;
 
-        // Save URL to Supabase/PostgreSQL database
-        const { error: dbError } = await supabase
-            .from('gallery')
-            .insert([{ image_url: imageUrl }]);
-
-        if (dbError) {
-            console.error('Supabase Error:', dbError);
-            throw dbError;
-        }
+        await pool.query('INSERT INTO gallery (image_url) VALUES ($1)', [imageUrl]);
 
         res.redirect('/admin');
     } catch (err) {
