@@ -1,7 +1,12 @@
 /* ========================================================================= */
 /* START OF MAIN STYLESHEET (public/style.css)                               */
 /* ========================================================================= */
-
+/* Add padding to body on mobile to prevent bottom bar overlap */
+@media (max-width: 768px) {
+    body {
+        padding-bottom: 85px !important;
+    }
+}
 :root {
     --primary: #0083B0;
     --primary-hover: #00668a;
