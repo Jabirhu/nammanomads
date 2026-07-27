@@ -661,7 +661,7 @@ app.post('/admin/create-game', async (req, res) => {
 });
 
 // --- ImgBB Permanent Photo Upload Route ---
-app.post('/admin/upload-photo', upload.single('image'), async (req, res) => {
+app.post('/admin/upload-photo', upload.single('photo'), async (req, res) => {
     if (!isAdminUser(req.session.user)) {
         return res.status(403).send('Unauthorized');
     }
