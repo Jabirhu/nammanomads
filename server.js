@@ -877,24 +877,31 @@ app.get('/booking-failed', (req, res) => {
     res.send("<script>alert('Payment failed or cancelled.'); window.location.href='/';</script>");
 });
 
-app.get('/my-bookings', async (req, res) => {
-    if (!req.session.user) return res.redirect('/');
-    
-    const userId = req.session.user.id;
-    const query = `
-        SELECT bookings.*, games.title, games.date, games.time, games.location, games.price 
-        FROM bookings 
-        JOIN games ON bookings.game_id = games.id 
-        WHERE bookings.user_id = $1
-        ORDER BY bookings.id DESC
-    `;
-
+// --- Place your middleware up here with other middlewares ---
+function isAuthenticated(req, res, next) {
+    if (req.session && req.session.user) {
+        return next();
+    }
+    // If not logged in, redirect to login page (or home with login modal trigger)
+    res.redirect('/login'); 
+}
+// --- Place your route down here with your other app.get routes ---
+app.get('/my-bookings', isAuthenticated, async (req, res) => {
     try {
-        const bookingsResult = await pool.query(query, [userId]);
-        res.render('my-bookings', { bookings: bookingsResult.rows || [], user: req.session.user });
+        const userId = req.session.user.id;
+        const bookingsResult = await pool.query(
+            "SELECT * FROM bookings WHERE user_id = $1 ORDER BY created_at DESC", 
+            [userId]
+        );
+        
+        res.render('my-bookings', { 
+            bookings: bookingsResult.rows, 
+            user: req.session.user, 
+            path: req.path 
+        });
     } catch (err) {
-        console.error(err);
-        res.render('my-bookings', { bookings: [], user: req.session.user });
+        console.error("Error fetching bookings:", err.message);
+        res.status(500).send("Internal Server Error");
     }
 });
 

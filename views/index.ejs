@@ -377,21 +377,20 @@
             </a>
     
             <!-- Bookings -->
-            <a href="/bookings" class="nav-item-custom <%= path === '/bookings' ? 'active' : '' %>">
+            <a href="#Games" class="nav-item-custom <%= path === '/bookings' ? 'active' : '' %>">
                 <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="currentColor" class="mb-1 d-block mx-auto" viewBox="0 0 16 16">
                     <path d="M4 .5a.5.5 0 0 0-1 0V1H2a2 2 0 0 0-2 2v1h16V3a2 2 0 0 0-2-2h-1V.5a.5.5 0 0 0-1 0V1H4zM16 14V5H0v9a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2m-5.146-5.146-3 3a.5.5 0 0 1-.708 0l-1.5-1.5a.5.5 0 0 1 .708-.708L7.5 10.793l2.646-2.647a.5.5 0 0 1 .708.708"/>
                 </svg>
-                <span class="nav-label">Bookings</span>
+                <span class="nav-label">Games</span>
             </a>
     
             <!-- My Matches / My Bookings -->
-            <a href="/my-bookings" class="nav-item-custom <%= path === '/my-bookings' ? 'active' : '' %>">
+            <a href="/my-bookings" class="nav-item-custom <%= path === '/my-bookings' ? 'active' : '' %>" id="my-bookings-link">
                 <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="currentColor" class="mb-1 d-block mx-auto" viewBox="0 0 24 24">
                     <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 2.07c3.27.37 5.86 2.96 6.23 6.23h-6.23V4.07zM4.07 13c.37 3.27 2.96 5.86 6.23 6.23v-6.23H4.07zm9 6.23c3.27-.37 5.86-2.96 6.23-6.23h-6.23v6.23zm-8.23-8.23h6.23V4.07C7.96 4.44 5.37 7.03 5.07 10.3z"/>
                 </svg>
-                <span class="nav-label">My Matches</span>
+                <span class="nav-label">My Bookings</span>
             </a>
-    
             <!-- Profile Page -->
             <a href="/profile" class="nav-item-custom <%= path === '/profile' ? 'active' : '' %>">
                 <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="currentColor" class="mb-1 d-block mx-auto" viewBox="0 0 16 16">
@@ -409,7 +408,7 @@
         <p class="mb-0">&copy; 2026 Namma Nomads Football Community. All rights reserved.</p>
     </footer>
 
-<!-- Bootstrap JS Bundle -->
+    <!-- Bootstrap JS Bundle -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
     <script>
@@ -483,20 +482,22 @@
         /* -----------------------------------------------------
             LOGIN INTERCEPTOR FOR BOOKINGS & ACTION BUTTONS
         ----------------------------------------------------- */
-        const loginButtons = document.querySelectorAll('.login-trigger-btn, a[href="/my-bookings"], a[href="/bookings"]');
+        const loginButtons = document.querySelectorAll('.login-trigger-btn, a[href="/my-bookings"], a[href="/bookings"], #my-bookings-link');
         loginButtons.forEach(button => {
             button.addEventListener('click', event => {
-                // Check if user is logged in via a data attribute or global variable rendered from EJS (e.g. data-logged-in="true")
-                const isLoggedIn = button.getAttribute('data-logged-in') === 'true' || window.isUserLoggedIn === true;
+                // Check if user is logged in via a data attribute, global window variable, or a template evaluation
+                const isLoggedIn = button.getAttribute('data-logged-in') === 'true' || window.isUserLoggedIn === true || (typeof user !== 'undefined' && user !== null);
                 
                 if (!isLoggedIn) {
+                    event.preventDefault();
                     const modalElement = document.getElementById('authModal');
                     if (modalElement) {
-                        event.preventDefault();
                         const authModal = bootstrap.Modal.getOrCreateInstance(modalElement);
                         authModal.show();
+                    } else {
+                        // Fallback redirect if modal is not present on the current page layout
+                        window.location.href = button.getAttribute('href') || '/login';
                     }
-                    // If no modal exists on the current page, it will naturally fall back to the href route protection on the backend.
                 }
             });
         });
@@ -563,6 +564,7 @@
 
     });
     </script>
+
 </body>
 </html>
 <!-- ========================================================================= -->
