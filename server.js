@@ -631,7 +631,7 @@ const handleGameAttendees = async (req, res) => {
                    COALESCE(users.mobile, 'N/A') as userPhone, 
                    bookings.status, bookings.withdrawal_reason, bookings.utr_number, games.price
             FROM bookings
-            JOIN users ON bookings.user_id = users.id
+            LEFT JOIN users ON bookings.user_id = users.id
             LEFT JOIN games ON bookings.game_id = games.id
             WHERE bookings.game_id = $1
             ORDER BY bookings.id ASC
