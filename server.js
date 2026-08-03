@@ -725,18 +725,19 @@ app.get('/book/:id', async (req, res) => {
 
     const userId = req.session.user.id;
 
+    // Updated to exclude PENDING so users can resume their interrupted checkout flow
     const checkQuery = `
         SELECT bookings.*, games.title, games.date 
         FROM bookings 
         JOIN games ON bookings.game_id = games.id 
-        WHERE bookings.user_id = $1 AND bookings.game_id = $2 AND bookings.status NOT IN ('Withdrawn', 'FAILED')
+        WHERE bookings.user_id = $1 AND bookings.game_id = $2 AND bookings.status NOT IN ('Withdrawn', 'FAILED', 'PENDING', 'Pending')
     `;
 
     try {
         const existingResult = await pool.query(checkQuery, [userId, gameId]);
         if (existingResult.rows.length > 0) {
             const existingBooking = existingResult.rows[0];
-            return res.send(`<script>alert('You already have an active/pending booking for this game (${existingBooking.title} - ${existingBooking.date}).'); window.location.href='/';</script>`);
+            return res.send(`<script>alert('You already have an active/confirmed booking for this game (${existingBooking.title} - ${existingBooking.date}).'); window.location.href='/';</script>`);
         }
 
         const gameResult = await pool.query(`SELECT * FROM games WHERE id = $1`, [gameId]);

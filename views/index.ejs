@@ -107,9 +107,9 @@
     <!-- ===================================================================== -->
     <!-- END OF ABOUT COMMUNITY SECTION                                        -->
     <!-- ===================================================================== -->
-
+    
     <!-- ===================================================================== -->
-    <!-- GAMES SCHEDULE & BOOKING SECTION                                     -->
+    <!-- GAMES SCHEDULE & BOOKING SECTION                                      -->
     <!-- ===================================================================== -->
     <section id="games" class="py-5">
         <div class="container">
@@ -143,9 +143,40 @@
                             <!-- Card Actions -->
                             <% if (existingStatus) { %>
                                 <% if (existingStatus.toLowerCase() === 'pending') { %>
-                                    <a href="/book/<%= game.id %>" class="btn fw-bold w-100 py-2 shadow-sm text-dark" style="background-color: #ffc107; border-color: #ffc107;">
+                                    <button type="button" class="btn fw-bold w-100 py-2 shadow-sm text-dark" style="background-color: #ffc107; border-color: #ffc107;" onclick="
+                                        event.preventDefault(); 
+                                        event.stopPropagation();
+                                        
+                                        let pendingModalEl = document.getElementById('pendingModal<%= game.id %>');
+                                        if (!pendingModalEl) {
+                                            const pendingModalHTML = `
+                                            <div class='modal fade' id='pendingModal<%= game.id %>' tabindex='-1' aria-hidden='true'>
+                                                <div class='modal-dialog modal-dialog-centered'>
+                                                    <div class='modal-content border-0 rounded-4 shadow'>
+                                                        <div class='modal-header border-0 pb-0'>
+                                                            <h5 class='modal-title fw-bold text-dark'><i class='fas fa-clock text-warning me-2'></i>Pending Payment</h5>
+                                                            <button type='button' class='btn-close' data-bs-dismiss='modal' aria-label='Close'></button>
+                                                        </div>
+                                                        <div class='modal-body px-4 py-3'>
+                                                            <p class='text-muted mb-4'>
+                                                                Do you want to proceed for pending payment or left payment for <strong><%= game.title %></strong>?
+                                                            </p>
+                                                            <a href='/book/<%= game.id %>' class='btn w-100 fw-bold py-2 text-dark shadow-sm' style='background-color: #ffc107; border-color: #ffc107;'>
+                                                                Proceed to Pending Payment
+                                                            </a>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>`;
+                                            document.body.insertAdjacentHTML('beforeend', pendingModalHTML);
+                                            pendingModalEl = document.getElementById('pendingModal<%= game.id %>');
+                                        }
+                                        
+                                        const myPendingModal = new bootstrap.Modal(pendingModalEl);
+                                        myPendingModal.show();
+                                    ">
                                         <i class="fas fa-clock me-1"></i> Pending Payment
-                                    </a>
+                                    </button>
                                 <% } else { %>
                                     <button type="button" class="btn btn-outline-secondary w-100 fw-bold py-2" onclick="
                                         event.preventDefault(); 
