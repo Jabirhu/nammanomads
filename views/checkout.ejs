@@ -9,58 +9,81 @@
     <link rel="stylesheet" href="/style.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 </head>
-<body class="bg-light">
-    <div class="container mt-4 mb-5" style="max-width: 550px;">
-        <div class="card shadow p-4 rounded-4 text-center">
+<body class="bg-light d-flex align-items-center justify-content-center min-vh-100 py-5">
+    <div class="container" style="max-width: 520px;">
+        <div class="card border-0 shadow-lg rounded-4 overflow-hidden p-4 p-md-5 bg-white">
+            
             <!-- Timer Badge -->
-            <div class="alert alert-warning py-2 mb-3 fw-bold" id="timer-box">
-                ⏳ Complete payment in: <span id="countdown">04:00</span>
+            <div class="alert alert-warning border-0 d-flex align-items-center justify-content-center py-2 mb-4 rounded-pill fw-bold text-dark shadow-sm" id="timer-box" style="background-color: #fff3cd; font-size: 0.95rem;">
+                <i class="fas fa-hourglass-half text-warning me-2"></i> Complete payment in:&nbsp;<span id="countdown" class="font-monospace text-danger">04:00</span>
             </div>
 
+            <!-- Game Details -->
             <% if (typeof game !== 'undefined' && game) { %>
-                <h3 class="fw-bold mb-2"><%= game.title || 'Match Booking' %></h3>
-                <p class="mb-1 text-muted">📅 Date: <%= game.date || 'TBD' %></p>
-                <% if (game.time) { %>
-                    <p class="mb-1 text-muted">⏰ Time: <%= game.time %></p>
-                <% } %>
-                <% if (game.location) { %>
-                    <p class="mb-1 text-muted">📍 Location: <%= game.location %></p>
-                <% } %>
-                <% if (game.price) { %>
-                    <p class="mb-3 fw-bold text-success fs-5">Amount to Pay: ₹<%= game.price %></p>
-                <% } %>
+                <div class="text-center mb-4">
+                    <h3 class="fw-bold text-dark mb-3"><%= game.title || 'Match Booking' %></h3>
+                    <div class="bg-light p-3 rounded-4 text-start border shadow-sm">
+                        <div class="d-flex align-items-center mb-2 text-secondary">
+                            <i class="fas fa-calendar-alt text-info me-3 fa-fw"></i>
+                            <span><strong>Date:</strong> <%= game.date || 'TBD' %></span>
+                        </div>
+                        <% if (game.time) { %>
+                            <div class="d-flex align-items-center mb-2 text-secondary">
+                                <i class="fas fa-clock text-info me-3 fa-fw"></i>
+                                <span><strong>Time:</strong> <%= game.time %></span>
+                            </div>
+                        <% } %>
+                        <% if (game.location) { %>
+                            <div class="d-flex align-items-center mb-2 text-secondary">
+                                <i class="fas fa-map-marker-alt text-info me-3 fa-fw"></i>
+                                <span><strong>Location:</strong> <%= game.location %></span>
+                            </div>
+                        <% } %>
+                        <% if (game.price) { %>
+                            <div class="d-flex align-items-center justify-content-between border-top pt-2 mt-2">
+                                <span class="fw-bold text-dark">Amount to Pay:</span>
+                                <span class="fw-bold text-success fs-5">₹<%= game.price %></span>
+                            </div>
+                        <% } %>
+                    </div>
+                </div>
             <% } else { %>
-                <h3 class="fw-bold mb-3">Match Booking</h3>
-                <p class="text-muted">Details unavailable.</p>
+                <div class="text-center mb-4">
+                    <h3 class="fw-bold text-dark mb-2">Match Booking</h3>
+                    <p class="text-muted">Details unavailable.</p>
+                </div>
             <% } %>
 
-            <hr>
-
             <!-- DESKTOP QR CODE CONTAINER (Hidden until generated successfully) -->
-            <div id="desktop-qr-container" class="mb-4" style="display: none;">
-                <div class="alert alert-primary py-2 small mb-3">
-                    <i class="fas fa-desktop me-1"></i> Scan the QR code below using PhonePe, GPay, or Paytm on your phone to pay.
+            <div id="desktop-qr-container" class="text-center mb-4" style="display: none;">
+                <div class="alert alert-primary border-0 small mb-3 rounded-3 py-2">
+                    <i class="fas fa-desktop me-1"></i> Scan the QR code below using PhonePe, GPay, or Paytm to pay.
                 </div>
-                <div class="bg-white p-3 border rounded-3 d-inline-block shadow-sm">
+                <div class="bg-white p-3 border rounded-4 d-inline-block shadow-sm">
                     <div id="qrcode" class="d-flex justify-content-center"></div>
                 </div>
-                <p class="text-muted small mt-2 mb-0">Waiting for payment confirmation...</p>
-                <div class="spinner-border spinner-border-sm text-primary mt-2" role="status"></div>
+                <div class="d-flex align-items-center justify-content-center mt-3 text-muted small">
+                    <div class="spinner-border spinner-border-sm text-primary me-2" role="status"></div>
+                    <span>Waiting for payment confirmation...</span>
+                </div>
             </div>
 
             <!-- SECURE PHONEPE PAYMENT GATEWAY BUTTON (Visible on Mobile) -->
-            <div id="payment-section" class="mb-4">
-                <div class="alert alert-info py-2 small mb-3">
-                    <i class="fas fa-shield-alt me-1"></i> Secure payment powered by PhonePe Gateway. No fake confirmations allowed.
+            <div id="payment-section" class="mb-3">
+                <div class="alert alert-light border small mb-3 rounded-3 text-muted text-center py-2">
+                    <i class="fas fa-shield-alt text-success me-1"></i> Secure payment powered by PhonePe Gateway.
                 </div>
                 
-                <button id="phonepe-pay-btn" class="btn text-white fw-bold py-3 w-100 d-flex align-items-center justify-content-center shadow-sm" style="background-color: #5f259f; font-size: 1.1rem;">
-                    <i class="fas fa-bolt me-2"></i> Pay ₹<%= (typeof game !== 'undefined' && game && game.price) ? game.price : '300' %> via PhonePe
+                <button id="phonepe-pay-btn" class="btn text-white fw-bold py-3 w-100 d-flex align-items-center justify-content-center shadow rounded-pill transition-all" style="background-color: #5f259f; font-size: 1.05rem;">
+                    <i class="fas fa-bolt me-2 text-warning"></i> Pay ₹<%= (typeof game !== 'undefined' && game && game.price) ? game.price : '300' %> via PhonePe
                 </button>
             </div>
 
-            <div class="text-center mt-3">
-                <a href="/" class="text-decoration-none small text-muted">← Cancel / Back to Home</a>
+            <!-- Cancel Link -->
+            <div class="text-center mt-2">
+                <a href="/" class="text-decoration-none small text-muted fw-semibold hover-link">
+                    <i class="fas fa-arrow-left me-1"></i> Cancel / Back to Home
+                </a>
             </div>
         </div>
     </div>
@@ -113,8 +136,8 @@
                         document.getElementById("qrcode").innerHTML = "";
                         new QRCode(document.getElementById("qrcode"), {
                             text: data.redirectUrl,
-                            width: 200,
-                            height: 200
+                            width: 190,
+                            height: 190
                         });
                         startPaymentPolling(data.transactionId);
                     } else {
@@ -146,13 +169,13 @@
                     } else {
                         alert("Failed to initialize payment gateway session. Please try again.");
                         payBtn.disabled = false;
-                        payBtn.innerHTML = `<i class="fas fa-bolt me-2"></i> Pay ₹<%= (typeof game !== 'undefined' && game && game.price) ? game.price : '300' %> via PhonePe`;
+                        payBtn.innerHTML = `<i class="fas fa-bolt me-2 text-warning"></i> Pay ₹<%= (typeof game !== 'undefined' && game && game.price) ? game.price : '300' %> via PhonePe`;
                     }
                 } catch (err) {
                     console.error('Payment initialization error:', err);
                     alert('An error occurred connecting to the server.');
                     payBtn.disabled = false;
-                    payBtn.innerHTML = `<i class="fas fa-bolt me-2"></i> Pay ₹<%= (typeof game !== 'undefined' && game && game.price) ? game.price : '300' %> via PhonePe`;
+                    payBtn.innerHTML = `<i class="fas fa-bolt me-2 text-warning"></i> Pay ₹<%= (typeof game !== 'undefined' && game && game.price) ? game.price : '300' %> via PhonePe`;
                 }
             };
 
