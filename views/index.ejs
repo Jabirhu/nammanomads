@@ -142,9 +142,10 @@
                             
                             <!-- Card Actions -->
                             <% if (existingStatus) { %>
-                                <button type="button" class="btn btn-outline-secondary w-100 fw-bold py-2">
+                                <button type="button" class="btn btn-outline-secondary w-100 fw-bold py-2" data-bs-toggle="modal" data-bs-target="#alreadyBookedModal<%= game.id %>">
                                     <%= existingStatus === 'Waiting List' ? 'On Waiting List' : 'Already Booked' %>
                                 </button>
+                            <% } %>
                             
                                 <div class="modal fade" id="alreadyBookedModal<%= game.id %>" tabindex="-1" aria-hidden="true">
                                     <div class="modal-dialog modal-dialog-centered">
