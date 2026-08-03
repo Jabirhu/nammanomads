@@ -108,7 +108,7 @@
     <!-- END OF ABOUT COMMUNITY SECTION                                        -->
     <!-- ===================================================================== -->
 
-<!-- ===================================================================== -->
+    <!-- ===================================================================== -->
     <!-- GAMES SCHEDULE & BOOKING SECTION                                     -->
     <!-- ===================================================================== -->
     <section id="games" class="py-5">
@@ -142,38 +142,44 @@
                             
                             <!-- Card Actions -->
                             <% if (existingStatus) { %>
-                                <button type="button" class="btn btn-outline-secondary w-100 fw-bold py-2" onclick="
-                                    event.preventDefault(); 
-                                    event.stopPropagation();
-                                    
-                                    let modalEl = document.getElementById('alreadyBookedModal<%= game.id %>');
-                                    if (!modalEl) {
-                                        const modalHTML = `
-                                        <div class='modal fade' id='alreadyBookedModal<%= game.id %>' tabindex='-1' aria-hidden='true'>
-                                            <div class='modal-dialog modal-dialog-centered'>
-                                                <div class='modal-content border-0 rounded-4 shadow'>
-                                                    <div class='modal-header border-0 pb-0'>
-                                                        <h5 class='modal-title fw-bold text-info'><i class='fas fa-info-circle me-2'></i>Booking Status</h5>
-                                                        <button type='button' class='btn-close' data-bs-dismiss='modal' aria-label='Close'></button>
-                                                    </div>
-                                                    <div class='modal-body px-4 py-3'>
-                                                        <p class='text-muted mb-3'>
-                                                            You already have an active entry for <strong><%= game.title %></strong>. 
-                                                            Your current status is: <strong class='text-dark'><%= existingStatus %></strong>.
-                                                        </p>
+                                <% if (existingStatus.toLowerCase() === 'pending') { %>
+                                    <a href="/checkout/<%= game.id %>" class="btn fw-bold w-100 py-2 shadow-sm text-dark" style="background-color: #ffc107; border-color: #ffc107;">
+                                        <i class="fas fa-clock me-1"></i> Pending Payment
+                                    </a>
+                                <% } else { %>
+                                    <button type="button" class="btn btn-outline-secondary w-100 fw-bold py-2" onclick="
+                                        event.preventDefault(); 
+                                        event.stopPropagation();
+                                        
+                                        let modalEl = document.getElementById('alreadyBookedModal<%= game.id %>');
+                                        if (!modalEl) {
+                                            const modalHTML = `
+                                            <div class='modal fade' id='alreadyBookedModal<%= game.id %>' tabindex='-1' aria-hidden='true'>
+                                                <div class='modal-dialog modal-dialog-centered'>
+                                                    <div class='modal-content border-0 rounded-4 shadow'>
+                                                        <div class='modal-header border-0 pb-0'>
+                                                            <h5 class='modal-title fw-bold text-info'><i class='fas fa-info-circle me-2'></i>Booking Status</h5>
+                                                            <button type='button' class='btn-close' data-bs-dismiss='modal' aria-label='Close'></button>
+                                                        </div>
+                                                        <div class='modal-body px-4 py-3'>
+                                                            <p class='text-muted mb-3'>
+                                                                You already have an active entry for <strong><%= game.title %></strong>. 
+                                                                Your current status is: <strong class='text-dark'><%= existingStatus %></strong>.
+                                                            </p>
+                                                        </div>
                                                     </div>
                                                 </div>
-                                            </div>
-                                        </div>`;
-                                        document.body.insertAdjacentHTML('beforeend', modalHTML);
-                                        modalEl = document.getElementById('alreadyBookedModal<%= game.id %>');
-                                    }
-                                    
-                                    const myModal = new bootstrap.Modal(modalEl);
-                                    myModal.show();
-                                ">
-                                    <%= existingStatus === 'Waiting List' ? 'On Waiting List' : 'Already Booked' %>
-                                </button>
+                                            </div>`;
+                                            document.body.insertAdjacentHTML('beforeend', modalHTML);
+                                            modalEl = document.getElementById('alreadyBookedModal<%= game.id %>');
+                                        }
+                                        
+                                        const myModal = new bootstrap.Modal(modalEl);
+                                        myModal.show();
+                                    ">
+                                        <%= existingStatus === 'Waiting List' ? 'On Waiting List' : 'Already Booked' %>
+                                    </button>
+                                <% } %>
                             
                             <% } else if (remainingSlots === 0) { %>
                                 <button type="button" 
@@ -214,7 +220,7 @@
                                     <%= user ? 'Book Now' : 'Login to Book' %>
                                 </a>
                             <% } %>
-                                                        
+                                                                    
                         </div>
                     </div>
                 <% }) %>
