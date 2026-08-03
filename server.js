@@ -627,7 +627,7 @@ const handleGameAttendees = async (req, res) => {
 
         const query = `
             SELECT bookings.id as booking_id, 
-                   COALESCE(users.name, 'Unknown User') as userName, 
+                   COALESCE(NULLIF(users.name, ''), NULLIF(users.email, ''), users.mobile, 'Unknown User') as userName, 
                    COALESCE(users.mobile, 'N/A') as userPhone, 
                    bookings.status, bookings.withdrawal_reason, bookings.utr_number, games.price
             FROM bookings
