@@ -82,7 +82,7 @@
 
             <!-- Cancel Link -->
             <div class="text-center mt-2">
-                <a href="/" class="text-decoration-none small text-muted fw-semibold hover-link">
+                <a href="#" id="cancel-booking-btn" class="text-decoration-none small text-muted fw-semibold hover-link">
                     <i class="fas fa-arrow-left me-1"></i> Cancel / Back to Home
                 </a>
             </div>
@@ -133,6 +133,7 @@
                     const data = await response.json();
 
                     if (data.success && data.redirectUrl) {
+                        window.currentTransactionId = data.transactionId; // Track transaction ID for cancellation
                         desktopQrContainer.style.display = 'block';
                         document.getElementById("qrcode").innerHTML = "";
                         new QRCode(document.getElementById("qrcode"), {
@@ -166,6 +167,7 @@
                     const data = await response.json();
 
                     if (data.success && data.redirectUrl) {
+                        window.currentTransactionId = data.transactionId; // Track transaction ID for cancellation
                         window.location.href = data.redirectUrl;
                     } else {
                         alert("Failed to initialize payment gateway session. Please try again.");
@@ -196,6 +198,20 @@
                 }
                 timeLeft--;
             }, 1000);
+        });
+
+        document.getElementById("cancel-booking-btn").addEventListener("click", async function(e) {
+            e.preventDefault();
+            const transactionId = window.currentTransactionId;
+                
+            if (transactionId) {
+                try {
+                    await fetch(`/api/phonepe/cancel-order?id=${transactionId}`, { method: 'POST' });
+                } catch (err) {
+                    console.error('Error canceling order:', err);
+                }
+            }
+            window.location.href = "/";
         });
     </script>
 </body>
