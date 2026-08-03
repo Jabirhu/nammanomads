@@ -109,9 +109,9 @@
     <!-- ===================================================================== -->
 
     <!-- ===================================================================== -->
-    <!-- GAMES SCHEDULE & BOOKING SECTION                                      -->
+    <!-- GAMES SCHEDULE & BOOKING SECTION                                     -->
     <!-- ===================================================================== -->
-<section id="games" class="py-5">
+    <section id="games" class="py-5">
         <div class="container">
             <h2 class="text-center fw-bold mb-4" style="color: #0083B0;">Upcoming Games & Schedule</h2>
             <div class="row">
@@ -142,7 +142,7 @@
                             
                             <!-- Card Actions -->
                             <% if (existingStatus) { %>
-                                <button type="button" class="btn btn-outline-secondary w-100 fw-bold py-2" onclick="const myModal = new bootstrap.Modal(document.getElementById('alreadyBookedModal<%= game.id %>')); myModal.show();">
+                                <button type="button" class="btn btn-outline-secondary w-100 fw-bold py-2" onclick="event.preventDefault(); event.stopImmediatePropagation(); const myModal = new bootstrap.Modal(document.getElementById('alreadyBookedModal<%= game.id %>')); myModal.show();">
                                     <%= existingStatus === 'Waiting List' ? 'On Waiting List' : 'Already Booked' %>
                                 </button>
                             
@@ -210,7 +210,7 @@
         </div>
     </section>
     <!-- ===================================================================== -->
-    <!-- END OF GAMES SCHEDULE SECTION                                         -->
+    <!-- END OF GAMES SCHEDULE SECTION                                        -->
     <!-- ===================================================================== -->
 
     <!-- ===================================================================== -->
