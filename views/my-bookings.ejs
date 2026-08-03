@@ -46,13 +46,53 @@
                             statusClass = 'bg-secondary';
                         } else if (currentStatus === 'waitlist') {
                             statusClass = 'bg-warning text-dark';
+                        } else if (currentStatus === 'pending') {
+                            statusClass = 'bg-success';
                         }
                     %>
                     <div class="list-group-item p-4 border-0 rounded-4 shadow-sm bg-white position-relative">
                         <div class="d-flex justify-content-between align-items-center mb-2">
                             <h4 class="fw-bold text-dark mb-0"><%= b.title || 'Match Booking' %></h4>
                             <div class="d-flex align-items-center gap-2">
-                                <span class="badge <%= statusClass %> px-3 py-2 text-uppercase fw-bold"><%= b.status || 'Confirmed' %></span>
+                                <% if (currentStatus === 'pending') { %>
+                                    <button type="button" class="badge <%= statusClass %> px-3 py-2 text-uppercase fw-bold border-0 shadow-sm" style="cursor: pointer;" onclick="
+                                        event.preventDefault(); 
+                                        event.stopPropagation();
+                                        
+                                        let pendingModalEl = document.getElementById('pendingModal<%= b.game_id %>');
+                                        if (!pendingModalEl) {
+                                            const pendingModalHTML = `
+                                            <div class='modal fade' id='pendingModal<%= b.game_id %>' tabindex='-1' aria-hidden='true'>
+                                                <div class='modal-dialog modal-dialog-centered'>
+                                                    <div class='modal-content border-0 rounded-4 shadow'>
+                                                        <div class='modal-header border-0 pb-0'>
+                                                            <h5 class='modal-title fw-bold text-dark'><i class='fas fa-clock text-warning me-2'></i>Pending Payment</h5>
+                                                            <button type='button' class='btn-close' data-bs-dismiss='modal' aria-label='Close'></button>
+                                                        </div>
+                                                        <div class='modal-body px-4 py-3'>
+                                                            <p class='text-muted mb-4'>
+                                                                Do you want to proceed for pending payment or left payment for <strong><%= b.title || 'Match Booking' %></strong>?
+                                                            </p>
+                                                            <a href='/book/<%= b.game_id %>' class='btn w-100 fw-bold py-2 text-dark shadow-sm' style='background-color: #ffc107; border-color: #ffc107;'>
+                                                                Proceed to Pending Payment
+                                                            </a>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>`;
+                                            document.body.insertAdjacentHTML('beforeend', pendingModalHTML);
+                                            pendingModalEl = document.getElementById('pendingModal<%= b.game_id %>');
+                                        }
+                                        
+                                        const myPendingModal = new bootstrap.Modal(pendingModalEl);
+                                        myPendingModal.show();
+                                    ">
+                                        <%= b.status || 'Confirmed' %>
+                                    </button>
+                                <% } else { %>
+                                    <span class="badge <%= statusClass %> px-3 py-2 text-uppercase fw-bold"><%= b.status || 'Confirmed' %></span>
+                                <% } %>
+
                                 <% if (currentStatus === 'confirmed' || currentStatus === 'waitlist' || currentStatus === 'pending') { %>
                                     <button type="button" class="btn btn-outline-danger btn-sm fw-bold px-3" data-bs-toggle="modal" data-bs-target="#withdrawModal" 
                                         data-booking-id="<%= b.id %>" 
