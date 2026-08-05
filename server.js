@@ -411,7 +411,7 @@ app.post('/signup', async (req, res) => {
                     from: 'Namma Nomads <onboarding@resend.dev>',
                     to: cleanEmail,
                     subject: 'Namma Nomads - Verify Your Email',
-                    text: `Hello ${name},\n\nYour 6-digit verification code is: ${otpCode}\n\nIt expires in 10 minutes.`
+                    html: `<p>Hello ${name},</p><p>Your 6-digit verification code is: <strong>${otpCode}</strong></p><p>It expires in 10 minutes.</p>`
                 });
 
                 return res.redirect(`/verify-otp?email=${encodeURIComponent(cleanEmail)}`);
@@ -431,7 +431,7 @@ app.post('/signup', async (req, res) => {
             from: 'Namma Nomads <onboarding@resend.dev>',
             to: cleanEmail,
             subject: 'Namma Nomads - Verify Your Email',
-            text: `Hello ${name},\n\nYour 6-digit verification code is: ${otpCode}\n\nIt expires in 10 minutes.`
+            html: `<p>Hello ${name},</p><p>Your 6-digit verification code is: <strong>${otpCode}</strong></p><p>It expires in 10 minutes.</p>`
         });
 
         return res.redirect(`/verify-otp?email=${encodeURIComponent(cleanEmail)}`);
@@ -517,17 +517,11 @@ app.post('/resend-otp', async (req, res) => {
             [newOtp, newExpires, currentCount + 1, currentDate, user.id]
         );
 
-        // Updated to use your published Resend template and variables
         await resend.emails.send({
             from: 'Namma Nomads <onboarding@resend.dev>',
             to: normalizedEmail,
             subject: 'Your Resent Namma Nomads Verification Code',
-            template: {
-                id: 'email-verification', // Replace with your actual template ID/alias from Resend
-                variables: {
-                    otp: newOtp // Maps to {{{otp}}} in your template HTML
-                }
-            }
+            html: `<p>Your new verification code is: <strong>${newOtp}</strong></p><p>It expires in 10 minutes.</p>`
         });
 
         return res.json({ success: true, message: 'New OTP sent successfully!' });
